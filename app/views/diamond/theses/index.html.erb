@@ -1,0 +1,111 @@
+<%= link_to t(:label_thesis_new_plural), new_thesis_path %>
+
+<% @theses.each do |thesis| %>
+  <div class="row">
+    <div class="col-md-12">
+      <hr>
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-11">
+          <h5>
+            <%= link_to thesis.title, thesis_path(thesis) %>
+          </h5>
+          <div class="row">
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_description%>
+              </h6>
+            </div>
+            <div class="col-md-14">
+              <h6 class="text-list">
+                <%= truncate(thesis.description, :length => 210, :omission => '...', :separator => ' ') %>
+              </h6>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_genre%>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                <%= thesis.thesis_type %>
+              </h6>
+            </div>
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_supervisor_singular %>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                <%= thesis.supervisor.try(:full_name) %>
+              </h6>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_field_of_study_plural%>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                <% thesis.courses.each do |course| %>
+                  <p><%= course.name %></p>
+                <% end %>
+              </h6>
+            </div>
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_annual %>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                <%= thesis.annual %>
+              </h6>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_status%>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                status
+              </h6>
+            </div>
+            <div class="col-md-2">
+              <h6 class="text-muted">
+                <%=t :label_enrollment_plural %>
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-list">
+                <span>
+                  0
+                </span>
+                <span class="text-muted" style="padding: 0 .5em;">
+                  |
+                </span>
+                <span>
+                  0
+                </span>
+              </h6>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <%=link_to "edit", edit_thesis_path(thesis) %>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+
+    </div>
+  </div>
+<% end %>

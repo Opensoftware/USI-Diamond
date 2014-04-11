@@ -1,0 +1,58 @@
+<hr>
+<div class="row">
+  <div class="col-md-12">
+    <div class="form-group extra-margin">
+      <%= f.text_field :title_pl, :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true, :minlength => "2"   %>
+    </div>
+    <hr>
+    <div class="form-group extra-margin">
+      <%= f.label :title_en, t(:label_thesis_singular_en) %>
+      <%= f.text_field :title_en, :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en)  %>
+    </div>
+    <div class="form-group extra-margin">
+      <%= f.label :thesis_type, t(:label_genre) %>
+      <div class="row">
+        <% @thesis_types.each do |tt| %>
+          <div class="col-md-5">
+            <%= f.radio_button :thesis_type_id, tt.id %>
+            <%= f.label :thesis_type_id, tt.name %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <div class="form-group extra-margin">
+      <div class="row">
+        <div class="col-md-8">
+          <%= f.label :student_amount, t(:label_thesis_student_amount) %>
+          <%= f.select :student_amount, options_for_select([1,2].collect {|i| [i,i] }, @thesis.student_amount), {}, :class => "form-control" %>
+        </div>
+        <div class="col-md-8">
+          <%= f.label :annual_id, t(:label_annual) %>
+          <%= f.select :annual_id, options_for_select(annuals.collect {|annual| [annual,annual.id] }, current_annual.id), {}, :class => "form-control" %>
+        </div>
+      </div>
+    </div>
+    <div class="form-group extra-margin">
+      <%= f.label :description, t(:label_thesis_desc) %>
+      <%= f.text_area :description, :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6 %>
+    </div>
+    <div class="form-group">
+      <%= f.label :course_ids, t(:label_field_of_study_plural) %>
+      <% @courses.each do |arr| %>
+        <div class="row">
+          <% arr.each do |course| %>
+            <div class="col-md-4">
+              <%= button_tag course.name, :class => "selectable-btn #{"selectable-btn-hover" if @thesis.assigned_to_course?(course) }", :type => "button" %>
+              <%= hidden_field_tag 'thesis[course_ids][]', course.id, (!@thesis.assigned_to_course?(course) || @thesis.new_record? ? {:disabled => true} : {}) %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      <%= hidden_field_tag 'thesis[course_ids][]' %>
+      <%= f.hidden_field :annual_id, :value => current_annual.id %>
+    </div>
+  </div>
+  <div class="col-md-4">
+  </div>
+</div>
+<hr>

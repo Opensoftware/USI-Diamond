@@ -1,0 +1,12 @@
+<div class="pull-right">
+    <div class="row">
+        <div class="col-md-7">
+            <%= button_to t(:label_save_and_close), (@thesis.new_record? ? theses_path : thesis_path(@thesis)), form: {class: "form-inline" }, :class => "btn btn-primary save-and-close" %>
+            </div>
+            <% if @thesis.new_record? %>
+                <div class="col-md-9">
+                    <%= button_to t(:label_save_and_add), { controller: params[:controller], action: "create", :params => {:add_another => true}}, :form => {:class => "form-inline" }, :class => "btn btn-danger save-and-add"%>
+                </div>
+            <% end %>
+        </div>
+    </div>
