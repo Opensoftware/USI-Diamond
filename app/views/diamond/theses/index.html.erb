@@ -1,111 +1,112 @@
-<%= link_to t(:label_thesis_new_plural), new_thesis_path %>
-
-<% @theses.each do |thesis| %>
-  <div class="row">
-    <div class="col-md-12">
-      <hr>
-      <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-11">
-          <h5>
-            <%= link_to thesis.title, thesis_path(thesis) %>
-          </h5>
-          <div class="row">
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_description%>
-              </h6>
-            </div>
-            <div class="col-md-14">
-              <h6 class="text-list">
-                <%= truncate(thesis.description, :length => 210, :omission => '...', :separator => ' ') %>
-              </h6>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_genre%>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                <%= thesis.thesis_type %>
-              </h6>
-            </div>
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_supervisor_singular %>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                <%= thesis.supervisor.try(:full_name) %>
-              </h6>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_field_of_study_plural%>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                <% thesis.courses.each do |course| %>
-                  <p><%= course.name %></p>
-                <% end %>
-              </h6>
-            </div>
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_annual %>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                <%= thesis.annual %>
-              </h6>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_status%>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                status
-              </h6>
-            </div>
-            <div class="col-md-2">
-              <h6 class="text-muted">
-                <%=t :label_enrollment_plural %>
-              </h6>
-            </div>
-            <div class="col-md-6">
-              <h6 class="text-list">
-                <span>
-                  0
-                </span>
-                <span class="text-muted" style="padding: 0 .5em;">
-                  |
-                </span>
-                <span>
-                  0
-                </span>
-              </h6>
-            </div>
+<% content_for :additional_javascripts do %>
+  <%= javascript_include_tag 'filter_form' %>
+  <%= javascript_include_tag 'diamond/theses_list' %>
+<% end %>
+<%= content_for :filter_menu do %>
+  <%= form_tag url_for( :action => params[:action], :controller => params[:controller]), :class => 'filter-form' do %>
+    <div class="row">
+      <% @filters.each do |filter, field| %>
+        <div class="col-md-3">
+          <div class="form-group">
+            <%= label_tag "#{field}", t("label_filter_#{filter}") %>
+            <%= select_tag "#{field}", options_for_select(send("#{filter}_filter_content"), params[field]) {}, :class => "form-control"  %>
           </div>
         </div>
-        <div class="col-md-4">
-          <%=link_to "edit", edit_thesis_path(thesis) %>
-        </div>
+      <% end %>
+      <div class="col-md-3 filter-action">
+        <%= hidden_field_tag :per_page, params[:per_page] %>
+        <%= hidden_field_tag :page, params[:page] %>
+        <%= button_tag t(:label_filter_action), :class => 'btn btn-danger' %>
+        <%= button_tag '', :class => 'btn pull-right refresh-btn', :type => 'button' %>
       </div>
     </div>
-    <div class="col-md-4">
+  <% end %>
+<% end %>
+<% if can?(:manage_own, Diamond::Thesis) %>
+  <% content_for :content_heading do %>
+    <div class="row">
+      <div class="col-md-5"></div>
+      <div class="col-md-11">
+        <% if current_user %>
+          <div class="pull-right">
+            <%= button_tag :class => 'select-all', :type => :button do %>
+              <%= content_tag :i, nil, :class => 'icon icon-navy icon-checkbox-accept' %>
+              <%=t :label_select_all%>
+            <% end %>
+            <%= form_tag collection_destroy_theses_path, :method => :delete do %>
+              <%= button_tag :class => 'destroy-all', :type => :button do %>
+                <%= content_tag :i, nil, :class => 'icon icon-red icon-delete' %>
+                <%=t :label_destroy_selected%>
+              <% end %>
+            <% end %>
+            <% if can?(:manage, Diamond::Thesis) %>
+              <%= form_tag collection_update_theses_path, :method => :patch do %>
+                <%= hidden_field_tag :perform_action, Diamond::Thesis::ACTION_REJECT %>
+                <%= button_tag :class => 'deny-selected', :type => :button do %>
+                  <%= content_tag :i, nil, :class => 'icon icon-red icon-right-arrow' %>
+                  <%=t :label_deny_selected%>
+                <% end %>
+              <% end %>
+              <%= form_tag collection_update_theses_path, :method => :patch do %>
+                <%= button_tag :class => 'accept-selected', :type => :button do %>
+                  <%= hidden_field_tag :perform_action, Diamond::Thesis::ACTION_ACCEPT %>
+                  <%= content_tag :i, nil, :class => 'icon icon-red icon-accept' %>
+                  <%=t :label_accept_selected%>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
 
+<% content_for :content_footnote do %>
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-8 paginator">
+      <%= will_paginate @theses, :renderer => BootstrapPagination::Rails %>
+    </div>
+    <div class="col-md-4">
+      <div class="pull-right per-page">
+        <h6 class="text-list">
+          <%=t :label_search_elements_amount%>:
+          <%= raw [2,10,20,40,80].collect {|i| link_to(i, diamond.theses_path(:per_page => i)) }.join(" ") %>
+        </h6>
+      </div>
     </div>
   </div>
+
 <% end %>
+<div class="pagination-summary">
+  <h6 class="text-list no-margin">
+    <%=t :label_thesis_found, :x => @theses.total_entries, :current_page => @theses.current_page, :total_pages => @theses.total_pages %>
+  </h6>
+</div>
+
+<% if @theses.present? %>
+  <%= form_tag url_for( :action => params[:action], :controller => params[:controller]), :class => 'theses-form' do %>
+    <div class="theses-list">
+      <%= render :partial => 'thesis_record', :collection => @theses %>
+    </div>
+  <% end %>
+<% else %>
+  <hr>
+  <h5 class="text-list extra-margin"><%=t :label_thesis_not_found%></h5>
+<% end %>
+
+<div id="modal-dialog" class="modal modal-dialog-centering">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <a href="#" data-dismiss="modal" aria-hidden="true" class="close">×</a>
+        <h5>Are you sure</h5>
+      </div>
+      <div class="modal-footer">
+        <a href="#" data-dismiss="modal" id="btnConfirm" class="btn confirm">OK</a>
+        <a href="#" data-dismiss="modal" aria-hidden="true" class="btn secondary">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>

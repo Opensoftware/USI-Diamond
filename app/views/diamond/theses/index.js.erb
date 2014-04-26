@@ -1,0 +1,3 @@
+$("div.pagination-summary > h6").html('<%=t :label_thesis_found, :x => @theses.total_entries, :current_page => @theses.current_page, :total_pages => @theses.total_pages %>');
+$("div.theses-list").html('<%=escape_javascript(render :partial => "thesis_record", :collection => @theses)  %>');
+$('div.paginator').html('<%= will_paginate @theses, :renderer => BootstrapPagination::Rails %>');
