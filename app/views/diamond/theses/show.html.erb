@@ -1,7 +1,7 @@
 <% content_for :additional_javascripts do %>
   <%= javascript_include_tag 'diamond/show_thesis' %>
   <% if can?(:manage_own, @thesis) && enrollments_available? %>
-    <%= javascript_include_tag 'diamond/show_thesis_employee' %>
+    <%= javascript_include_tag 'student_autocomplete' %>
   <% end %>
 <% end %>
 <% if can?(:manage_own, @thesis) %>
@@ -152,7 +152,7 @@
     <div class="col-md-8">
       <%= f.label :student_id, t(:label_student_singular) %>
       <div>
-        <%= f.text_field :student_id, {:value => enrolled_student, :class => "typeahead form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
+        <%= f.text_field :student_id, {:value => enrolled_student, :class => "typeahead typeahead-student form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
         <%= f.hidden_field :student_id %>
       </div>
     </div>
