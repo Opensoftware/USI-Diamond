@@ -152,7 +152,7 @@
     <div class="col-md-8">
       <%= f.label :student_id, t(:label_student_singular) %>
       <div>
-        <%= f.text_field :student_id, {:value => current_user.try(:student?) ? current_user.try(:verifable).try(:surname_name) : "", :class => "typeahead form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
+        <%= f.text_field :student_id, {:value => enrolled_student, :class => "typeahead form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
         <%= f.hidden_field :student_id %>
       </div>
     </div>
@@ -168,12 +168,14 @@
       <div class="pull-right">
         <span style="padding-right: 1em;">
           <% if enrollments_available? %>
-            <% if !current_user %>
+            <% if !current_user && can_enroll? %>
               <%=t :label_thesis_enroll_login_first %>
             <% elsif can_enroll? %>
 
+            <% elsif defined?(@student) %>
+              <%= t(:label_thesis_enrolled_by_employee, :student => @student.surname_name) %>
             <% else %>
-              <%=t :label_thesis_enrolled %>
+              <%= t(:label_thesis_enrolled) %>
             <% end %>
           <% else %>
             <%=t :label_enrollment_unavailable, :day => l(current_semester.thesis_enrollments_begin) %>

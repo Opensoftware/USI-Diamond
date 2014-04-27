@@ -56,10 +56,18 @@ module Diamond::ThesesHelper
   end
 
   def can_enroll?
-    current_user && !@thesis.assigned? && @enrollment.new_record?
+    current_user && @thesis.current_state < :assigned && @enrollment.new_record?
   end
 
   def thesis_record_menu_available?
     current_user && can?(:manage_own, Diamond::Thesis)
+  end
+
+  def enrolled_student
+    if defined?(@student)
+      @student.try(:surname_name)
+    elsif current_user.try(:student?)
+      current_user.try(:verifable).try(:surname_name)
+    end
   end
 end

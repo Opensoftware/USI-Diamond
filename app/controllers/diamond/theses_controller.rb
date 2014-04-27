@@ -66,12 +66,17 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
     @primary_enrollments = @thesis.enrollments.primary
     @secondary_enrollments = @thesis.enrollments.secondary
+    @enrollments_types = Diamond::ThesisEnrollmentType.includes(:translations).load
     if !current_user || (current_user && current_user.employee?)
       @enrollment = @thesis.enrollments.build
     else
       @enrollment = current_user.verifable.enrollments.where(thesis_id: @thesis.id).first || @thesis.enrollments.build
     end
-    @enrollments_types = Diamond::ThesisEnrollmentType.includes(:translations).load
+    if @thesis.current_state >= :assigned
+      @student = Student.find(@thesis.enrollments.primary.first.student_id)
+    end
+
+
   end
 
   def edit

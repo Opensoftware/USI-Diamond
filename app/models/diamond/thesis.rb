@@ -1,17 +1,79 @@
 class Diamond::Thesis < ActiveRecord::Base
 
-    translates :title, :description
-    globalize_accessors :locales => I18n.available_locales
+  ACTION_REJECT = :reject
+  ACTION_ACCEPT = :accept
 
-    belongs_to :annual
-    belongs_to :supervisor, :class_name => "Employee"
-    belongs_to :thesis_type
+  include ::Workflow
 
-    has_many :course_thesis, :class_name => "Diamond::CourseThesis", :dependent => :destroy
-    has_many :courses, :through => :course_thesis
-
-
-    def assigned_to_course?(course)
-        courses.include?(course)
+  workflow_column :state
+  workflow do
+    state :unaccepted do
+      event :accept, :transitions_to => :open
+      event :reject, :transitions_to => :rejected
     end
+    state :rejected
+    state :open do
+      event :reserve, :transitions_to => :reserved
+      event :assign, :transitions_to => :assigned
+    end
+    state :reserved do
+      event :assign, :transitions_to => :assigned
+      event :reject, :transitions_to => :published
+    end
+    state :assigned do
+      event :archive, :transitions_to => :archived
+    end
+    state :archived
+    on_transition do |from, to, triggering_event, *event_args|
+      Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => to, :employee_id => User.current.try(:verifable_id))
+    end
+  end
+
+  after_create :create_initial_audit
+
+  translates :title, :description
+  globalize_accessors :locales => I18n.available_locales
+
+  belongs_to :supervisor, :class_name => "Employee"
+  belongs_to :thesis_type
+  belongs_to :annual
+
+  has_many :course_thesis, :class_name => "Diamond::CourseThesis", :dependent => :destroy
+  has_many :courses, :through => :course_thesis
+  has_many :thesis_state_audits, :class_name => "Diamond::ThesisStateAudit", :dependent => :destroy
+  has_many :enrollments, :class_name => "Diamond::ThesisEnrollment", :dependent => :destroy
+
+  scope :by_thesis_type, ->(tt) { where(:thesis_type_id => tt) }
+  scope :by_annual, ->(a) { where(:annual_id => a) }
+  scope :by_supervisor, ->(s) { where(:supervisor_id => s) }
+  scope :by_course, ->(c) {joins(:courses).where("#{Course.table_name}.id" => c) }
+  scope :by_status, ->(s) { where(:state => s) }
+  scope :by_department, ->(d) { where(:department_id => d) }
+  scope :visible, -> { where(:state => [:open, :reserved, :archived]) }
+
+  def self.include_peripherals
+    includes(:translations, :annual, [:thesis_type => :translations], [:courses => :translations])
+  end
+
+  def assigned_to_course?(course)
+    courses.include?(course)
+  end
+
+  def assigned?
+    current_state  >= :assigned
+  end
+
+  def primary_enrollments_count
+    enrollments.primary.count
+  end
+
+  def secondary_enrollments_count
+    enrollments.secondary.count
+  end
+
+  private
+  def create_initial_audit
+    Diamond::ThesisStateAudit.create(:thesis_id => self.reload.id, :state => :unaccepted, :employee_id => User.current.try(:verifable_id))
+  end
+
 end
