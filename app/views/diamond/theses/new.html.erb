@@ -1,27 +1,31 @@
 <% content_for :additional_javascript_libraries do %>
-    <%= javascript_include_tag "diamond/thesis" %>
+  <%= javascript_include_tag "diamond/thesis" %>
+<% end %>
+<% content_for :content_heading do %>
+  <div class="row">
+    <div class="col-md-9">
+      <h4>
+        <%=t :label_thesis_new_singular%>
+      </h4>
+    </div>
+    <div class="col-md-7">
+      <%= render :partial => "new_controls"  %>
+    </div>
+  </div>
+<% end %>
+<% content_for :content_footnote do %>
+  <hr/>
+  <div class="row">
+    <div class="col-md-9">
+    </div>
+    <div class="col-md-7">
+      <%= render :partial => "new_controls"  %>
+    </div>
+  </div>
 <% end %>
 
 
-<div class="row">
-    <div class="col-md-9">
-        <h4>
-            <%=t :label_thesis_new_singular%>
-        </h4>
-    </div>
-    <div class="col-md-7">
-        <%= render :partial => "new_controls"  %>
-    </div>
-</div>
+
 <%= form_for @thesis, role: "form", :html => {:class => "new-thesis"}  do |f| %>
-    <%= render :partial => "form", :locals => {:f => f} %>
+  <%= render :partial => "form", :locals => {:f => f} %>
 <% end %>
-<div class="row">
-    <div class="col-md-9">
-    </div>
-    <div class="col-md-7">
-        <%= render :partial => "new_controls"  %>
-    </div>
-</div>
-
-

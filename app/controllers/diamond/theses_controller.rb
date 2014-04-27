@@ -40,6 +40,7 @@ class Diamond::ThesesController < DiamondController
 
   def new
     @thesis = Diamond::Thesis.new
+    @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
     @courses = current_user.verifable.department.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
@@ -48,6 +49,7 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.new thesis_params
 
     if action_performed = @thesis.save
+      update_status
       respond_to do |f|
         f.json do
           render :json => {:success => action_performed, :clear => true}.to_json
@@ -81,6 +83,9 @@ class Diamond::ThesesController < DiamondController
 
   def edit
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
+    if @thesis.enrollments.blank? && can?(:manage_own, @thesis)
+      @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
+    end
     @courses = current_user.verifable.department.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
@@ -89,6 +94,7 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
 
     if @thesis.update(thesis_params)
+      update_status
       redirect_to thesis_path(@thesis)
     else
       render 'edit'
@@ -156,10 +162,21 @@ class Diamond::ThesesController < DiamondController
 
   private
   def thesis_params
-    params.require(:thesis).permit(:title_pl, :title_en, :description, :supervisor_id, :thesis_type_id, :student_amount, :annual_id, :course_ids => [])
+    attrs = [:title_pl, :title_en, :description, :supervisor_id,
+      :thesis_type_id, :student_amount, :annual_id, :course_ids => []
+    ]
+    attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]} if can?(:manage, Diamond::Thesis)
+    params.require(:thesis).permit(attrs)
   end
 
   def allowed_action?
     ALLOWED_ACTIONS.include?(params[:perform_action].to_sym)
+  end
+
+  def update_status
+    if @thesis.enrollments.any? && can?(:manage_own, @thesis)
+      @thesis.enrollments.each(&:accept!)
+      @thesis.assign! if @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
+    end
   end
 end

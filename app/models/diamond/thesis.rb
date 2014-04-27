@@ -10,6 +10,7 @@ class Diamond::Thesis < ActiveRecord::Base
     state :unaccepted do
       event :accept, :transitions_to => :open
       event :reject, :transitions_to => :rejected
+      event :assign, :transitions_to => :assigned
     end
     state :rejected
     state :open do
@@ -42,6 +43,13 @@ class Diamond::Thesis < ActiveRecord::Base
   has_many :courses, :through => :course_thesis
   has_many :thesis_state_audits, :class_name => "Diamond::ThesisStateAudit", :dependent => :destroy
   has_many :enrollments, :class_name => "Diamond::ThesisEnrollment", :dependent => :destroy
+  accepts_nested_attributes_for :enrollments, :reject_if => lambda { |e|
+    e[:student_id].blank?
+  }
+  has_many :students, :through => :enrollments, :dependent => :nullify
+  has_many :accepted_students,
+  -> { joins(:enrollments => :enrollment_type).where("#{Diamond::ThesisEnrollmentType.table_name}.code = ?", :primary) },
+  :through => :enrollments, :dependent => :nullify, :source => :student
 
   scope :by_thesis_type, ->(tt) { where(:thesis_type_id => tt) }
   scope :by_annual, ->(a) { where(:annual_id => a) }
@@ -52,7 +60,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :visible, -> { where(:state => [:open, :reserved, :archived]) }
 
   def self.include_peripherals
-    includes(:translations, :annual, [:thesis_type => :translations], [:courses => :translations])
+    includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])
   end
 
   def assigned_to_course?(course)
@@ -73,7 +81,8 @@ class Diamond::Thesis < ActiveRecord::Base
 
   private
   def create_initial_audit
-    Diamond::ThesisStateAudit.create(:thesis_id => self.reload.id, :state => :unaccepted, :employee_id => User.current.try(:verifable_id))
+    Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => :unaccepted, :employee_id => User.current.try(:verifable_id))
+    true
   end
 
 end

@@ -11,4 +11,8 @@ class Diamond::ThesisEnrollmentType < ActiveRecord::Base
     name <=> other.name
   end
 
+  def self.primary
+    where(code: :primary).first
+  end
+
 end
