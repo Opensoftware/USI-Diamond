@@ -1,5 +1,8 @@
 <% content_for :additional_javascripts do %>
   <%= javascript_include_tag 'diamond/show_thesis' %>
+  <% if can?(:manage_own, @thesis) && enrollments_available? %>
+    <%= javascript_include_tag 'diamond/show_thesis_employee' %>
+  <% end %>
 <% end %>
 <% if can?(:manage_own, @thesis) %>
   <% content_for :right_column do %>
@@ -148,7 +151,10 @@
   <div class="form-group">
     <div class="col-md-8">
       <%= f.label :student_id, t(:label_student_singular) %>
-      <%= f.text_field :student_id, {:value => current_user.try(:verifable).try(:surname_name), :class => "typeahead form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off}.merge(can_enroll? ? {} : {:disabled => true}) %>
+      <div>
+        <%= f.text_field :student_id, {:value => current_user.try(:student?) ? current_user.try(:verifable).try(:surname_name) : "", :class => "typeahead form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
+        <%= f.hidden_field :student_id %>
+      </div>
     </div>
     <div class="col-md-8">
       <% if !current_user || current_user.student? %>
@@ -165,6 +171,7 @@
             <% if !current_user %>
               <%=t :label_thesis_enroll_login_first %>
             <% elsif can_enroll? %>
+
             <% else %>
               <%=t :label_thesis_enrolled %>
             <% end %>
