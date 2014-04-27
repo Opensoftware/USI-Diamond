@@ -49,6 +49,10 @@ module Diamond::ThesesHelper
     I18n.t "label_status_#{current_state}"
   end
 
+  def enrolled?
+    @thesis.current_state >= :assigned
+  end
+
   def enrollments_available?
     return @enrollments_available if defined?(@enrollments_available)
     now = Time.now
@@ -56,7 +60,7 @@ module Diamond::ThesesHelper
   end
 
   def can_enroll?
-    current_user && @thesis.current_state < :assigned && @enrollment.new_record?
+    (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user && @thesis.current_state < :assigned && @enrollment.new_record?
   end
 
   def thesis_record_menu_available?

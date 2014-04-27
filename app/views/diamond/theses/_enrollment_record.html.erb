@@ -1,0 +1,17 @@
+<tr>
+  <td>
+    <%= enrollment_record.student.surname_name %>
+  </td>
+  <td>
+    <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; "#{ss.studies.course.to_s} (#{ss.studies.study_degree.name.camelize(:lower)})" %>
+  </td>
+  <td>
+    <%=t :label_year_of_study_short, :year => semester_to_year_number(ss.semester_number) %>
+  </td>
+  <td>
+    <%=l enrollment_record.created_at %>
+  </td>
+  <td>
+    <%=t "label_status_#{enrollment_record.current_state}"  %>
+  </td>
+</tr>

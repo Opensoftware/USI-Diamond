@@ -20,9 +20,14 @@ class Diamond::ThesesController < DiamondController
     .include_peripherals
     .order("lower(title) ASC")
     .paginate(:page => params[:page].to_i < 1 ? 1 : params[:page], :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
-    if !current_user || cannot?(:manage, Diamond::Thesis)
+    if can?(:manage, Diamond::Thesis)
+    elsif can?(:manage_own, Diamond::Thesis)
+      @theses = @theses.for_supervisor(current_user.verifable_id)
+    elsif !current_user || cannot?(:manage, Diamond::Thesis)
       @theses = @theses.visible
     end
+
+
 
     @filters = {}.tap do |h|
       if current_user
@@ -69,6 +74,9 @@ class Diamond::ThesesController < DiamondController
     @primary_enrollments = @thesis.enrollments.primary
     @secondary_enrollments = @thesis.enrollments.secondary
     @enrollments_types = Diamond::ThesisEnrollmentType.includes(:translations).load
+    @student_studies = StudentStudies.joins(:studies, :student => :theses)
+    .includes(:studies => [:course => :translations, :study_type => :translations])
+    .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)", @thesis.student_ids, @thesis.course_ids)
     if !current_user || (current_user && current_user.employee?)
       @enrollment = @thesis.enrollments.build
     else

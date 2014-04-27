@@ -18,4 +18,16 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
   scope :primary, -> { joins(:enrollment_type).where("#{Diamond::ThesisEnrollmentType.table_name}.code" => :primary) }
   scope :secondary, -> { joins(:enrollment_type).where("#{Diamond::ThesisEnrollmentType.table_name}.code" => :secondary) }
 
+  def get_studies
+    joins(:thesis, :student => :studies).where("#{Diamond::Thesis.table_name}.student_id")
+  end
+
+  def primary?
+    enrollment_type == Diamond::ThesisEnrollmentType.primary
+  end
+
+  def secondary?
+    enrollment_type == Diamond::ThesisEnrollmentType.secondary
+  end
+
 end

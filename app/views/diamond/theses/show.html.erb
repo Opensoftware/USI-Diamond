@@ -1,6 +1,6 @@
 <% content_for :additional_javascripts do %>
   <%= javascript_include_tag 'diamond/show_thesis' %>
-  <% if can?(:manage_own, @thesis) && enrollments_available? %>
+  <% if (can?(:manage_own, @thesis) && enrollments_available?) || can?(:manage, @thesis) %>
     <%= javascript_include_tag 'student_autocomplete' %>
   <% end %>
 <% end %>
@@ -167,7 +167,9 @@
     <div class="col-md-16">
       <div class="pull-right">
         <span style="padding-right: 1em;">
-          <% if enrollments_available? %>
+          <% if enrolled? %>
+            <%= t(:label_thesis_enrolled_by_employee, :student => @student.surname_name) %>
+          <% elsif enrollments_available? %>
             <% if !current_user && can_enroll? %>
               <%=t :label_thesis_enroll_login_first %>
             <% elsif can_enroll? %>
@@ -197,10 +199,11 @@
 </div>
 <table class="table">
   <tbody>
-    <% @primary_enrollments.each do |enrollment| %>
+    <% if @primary_enrollments.present? %>
+      <%= render :partial => "enrollment_record", :collection => @primary_enrollments %>
+    <% else %>
       <tr>
         <td>
-          <%= enrollment.student.surname_name %>
         </td>
       </tr>
     <% end %>
@@ -213,10 +216,11 @@
 </div>
 <table class="table">
   <tbody>
-    <% @secondary_enrollments.each do |enrollment| %>
+    <% if @secondary_enrollments.present? %>
+      <%= render :partial => "enrollment_record", :collection => @secondary_enrollments %>
+    <% else %>
       <tr>
         <td>
-          <%= enrollment.student.surname_name %>
         </td>
       </tr>
     <% end %>

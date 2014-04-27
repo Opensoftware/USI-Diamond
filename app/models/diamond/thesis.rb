@@ -58,6 +58,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :by_status, ->(s) { where(:state => s) }
   scope :by_department, ->(d) { where(:department_id => d) }
   scope :visible, -> { where(:state => [:open, :reserved, :archived]) }
+  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :reserved, :archived], s) }
 
   def self.include_peripherals
     includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])
