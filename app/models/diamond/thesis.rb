@@ -19,7 +19,7 @@ class Diamond::Thesis < ActiveRecord::Base
     end
     state :reserved do
       event :assign, :transitions_to => :assigned
-      event :reject, :transitions_to => :published
+      event :reject, :transitions_to => :open
     end
     state :assigned do
       event :archive, :transitions_to => :archived
@@ -57,8 +57,8 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :by_course, ->(c) {joins(:courses).where("#{Course.table_name}.id" => c) }
   scope :by_status, ->(s) { where(:state => s) }
   scope :by_department, ->(d) { where(:department_id => d) }
-  scope :visible, -> { where(:state => [:open, :reserved, :archived]) }
-  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :reserved, :archived], s) }
+  scope :visible, -> { where(:state => [:open, :reserved, :archived, :assigned]) }
+  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :reserved, :archived, :assigned], s) }
 
   def self.include_peripherals
     includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])

@@ -26,6 +26,26 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     redirect_to thesis_path(params[:thesis_id])
   end
 
+  def accept
+    @enrollment = Diamond::ThesisEnrollment.find(params[:id])
+    @enrollment.accept! if @enrollment.can_accept?
+    thesis = Diamond::Thesis.find(params[:thesis_id])
+    thesis.assign! if thesis.can_assign?
+    (thesis.enrollments - [@enrollment]).each do |enrollment|
+      enrollment.reject! if enrollment.can_reject?
+    end
+    redirect_to thesis_path(params[:thesis_id]),
+    flash: {notice: t(:label_thesis_enrolled_by_employee, student: @enrollment.student.try(:surname_name))}
+  end
+
+  def reject
+    @enrollment = Diamond::ThesisEnrollment.find(params[:id])
+    @enrollment.reject! if @enrollment.can_reject?
+    thesis = Diamond::Thesis.find(params[:thesis_id])
+    thesis.reject! if thesis.can_reject?
+    redirect_to thesis_path(params[:thesis_id])
+  end
+
   private
   def enrollment_params
     params.require(:thesis_enrollment).permit(:enrollment_type_id, :student_id)

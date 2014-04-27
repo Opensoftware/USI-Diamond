@@ -14,6 +14,7 @@ class Diamond::ThesesController < DiamondController
 
   ALLOWED_ACTIONS = [Diamond::Thesis::ACTION_REJECT, Diamond::Thesis::ACTION_ACCEPT].freeze
 
+  helper_method :enrolled?
 
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
@@ -46,12 +47,16 @@ class Diamond::ThesesController < DiamondController
   def new
     @thesis = Diamond::Thesis.new
     @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
-    @courses = current_user.verifable.department.courses.includes(:translations).load.in_groups_of(4, false)
+    @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
 
   def create
     @thesis = Diamond::Thesis.new thesis_params
+
+    if @thesis.supervisor_id.present?
+      @thesis.department_id = @thesis.supervisor.department_id
+    end
 
     if action_performed = @thesis.save
       update_status
@@ -73,20 +78,21 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
     @primary_enrollments = @thesis.enrollments.primary
     @secondary_enrollments = @thesis.enrollments.secondary
-    @enrollments_types = Diamond::ThesisEnrollmentType.includes(:translations).load
     @student_studies = StudentStudies.joins(:studies, :student => :theses)
     .includes(:studies => [:course => :translations, :study_type => :translations])
     .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)", @thesis.student_ids, @thesis.course_ids)
     if !current_user || (current_user && current_user.employee?)
       @enrollment = @thesis.enrollments.build
+    elsif enrolled?
+      @enrollment = @thesis.enrollments.primary.accepted.first
     else
       @enrollment = current_user.verifable.enrollments.where(thesis_id: @thesis.id).first || @thesis.enrollments.build
     end
     if @thesis.current_state >= :assigned
       @student = Student.find(@thesis.enrollments.primary.first.student_id)
     end
-
-
+    @enrollments_types = [Diamond::ThesisEnrollmentType.includes(:translations)
+      .send(@primary_enrollments.present? && !defined?(@student) ? :secondary : :load)].flatten
   end
 
   def edit
@@ -94,7 +100,7 @@ class Diamond::ThesesController < DiamondController
     if @thesis.enrollments.blank? && can?(:manage_own, @thesis)
       @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
     end
-    @courses = current_user.verifable.department.courses.includes(:translations).load.in_groups_of(4, false)
+    @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
 
@@ -183,8 +189,15 @@ class Diamond::ThesesController < DiamondController
 
   def update_status
     if @thesis.enrollments.any? && can?(:manage_own, @thesis)
-      @thesis.enrollments.each(&:accept!)
-      @thesis.assign! if @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
+      @thesis.enrollments.each do |enrollment|
+        enrollment.accept! if enrollment.can_accept?
+      end
+      @thesis.assign! if @thesis.can_assign? && @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
     end
+  end
+
+
+  def enrolled?
+    @thesis.current_state >= :assigned
   end
 end

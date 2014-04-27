@@ -3,15 +3,39 @@
     <%= enrollment_record.student.surname_name %>
   </td>
   <td>
-    <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; "#{ss.studies.course.to_s} (#{ss.studies.study_degree.name.camelize(:lower)})" %>
+    <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; ss.present? ? ss.studies.course.to_s : "-"  %>
   </td>
   <td>
-    <%=t :label_year_of_study_short, :year => semester_to_year_number(ss.semester_number) %>
+    <%= ss.present? ? t(:label_year_of_study_short, :year => semester_to_year_number(ss.semester_number)) : "-" %>
   </td>
   <td>
-    <%=l enrollment_record.created_at %>
+    <%=l(enrollment_record.created_at, :format => :short) %>
   </td>
   <td>
-    <%=t "label_status_#{enrollment_record.current_state}"  %>
+    <% if can?(:manage_own, @thesis) && can_enroll? && enrollment_record.pending? %>
+      <p>
+        <span class="text-danger"><%=t 'misc.days', :count => 5%></span>
+        <%=t :label_accept_period%>
+      </p>
+    <% else %>
+      <%= format_status enrollment_record.current_state  %>
+    <% end %>
+  </td>
+  <td>
+    <% if can?(:manage_own, @thesis) %>
+      <% if enrolled? || !enrollment_record.pending? %>
+        <p>
+          <span class="text-muted">
+            <%=t(:label_accept)%>
+            <span class="sep">|</span>
+            <%=t(:label_reject)%>
+          </span>
+        </p>
+      <% else %>
+        <%= link_to t(:label_accept), accept_thesis_thesis_enrollment_path(@thesis, enrollment_record), :class => 'action-accept' %>
+        <span class="sep">|</span>
+        <%= link_to t(:label_reject), reject_thesis_thesis_enrollment_path(@thesis, enrollment_record), :class => 'action-reject' %>
+      <% end %>
+    <% end %>
   </td>
 </tr>

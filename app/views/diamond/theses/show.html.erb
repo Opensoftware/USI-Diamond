@@ -170,7 +170,7 @@
           <% if enrolled? %>
             <%= t(:label_thesis_enrolled_by_employee, :student => @student.surname_name) %>
           <% elsif enrollments_available? %>
-            <% if !current_user && can_enroll? %>
+            <% if !current_user  %>
               <%=t :label_thesis_enroll_login_first %>
             <% elsif can_enroll? %>
 

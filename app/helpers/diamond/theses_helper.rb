@@ -49,10 +49,6 @@ module Diamond::ThesesHelper
     I18n.t "label_status_#{current_state}"
   end
 
-  def enrolled?
-    @thesis.current_state >= :assigned
-  end
-
   def enrollments_available?
     return @enrollments_available if defined?(@enrollments_available)
     now = Time.now
@@ -60,7 +56,8 @@ module Diamond::ThesesHelper
   end
 
   def can_enroll?
-    (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user && @thesis.current_state < :assigned && @enrollment.new_record?
+    return @can_enroll if defined?(@can_enroll)
+    @can_enroll =  (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user.present? && @thesis.try(:current_state) < :assigned && @enrollment.new_record?
   end
 
   def thesis_record_menu_available?
@@ -72,6 +69,20 @@ module Diamond::ThesesHelper
       @student.try(:surname_name)
     elsif current_user.try(:student?)
       current_user.try(:verifable).try(:surname_name)
+    end
+  end
+
+  def format_status(status)
+    color = case status.to_s
+    when 'accepted' then
+      'text-success'
+    when 'rejected' then
+      'text-danger'
+    else
+      ''
+    end
+    content_tag(:span, :class => color) do
+      I18n.t "label_status_#{status}"
     end
   end
 end
