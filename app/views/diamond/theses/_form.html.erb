@@ -18,7 +18,7 @@
   <div class="row">
     <% @thesis_types.each do |tt| %>
       <div class="col-md-5">
-        <%= f.radio_button :thesis_type_id, tt.id %>
+        <%= f.radio_button :thesis_type_id, tt.id, :required => true, :'aria-required' => true %>
         <%= f.label :thesis_type_id, tt.name %>
       </div>
     <% end %>
