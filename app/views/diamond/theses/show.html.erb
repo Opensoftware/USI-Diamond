@@ -126,13 +126,11 @@
   <div class="col-md-6">
     <h6 class="text-list">
       <span>
-        <%= @thesis.primary_enrollments_count %>
+        <%= @thesis.student_amount %>
       </span>
-      <span class="text-muted" style="padding: 0 .5em;">
-        |
-      </span>
+      <span class="text-muted">|</span>
       <span>
-        <%= @thesis.secondary_enrollments_count %>
+        <%= @thesis.enrollments_count %>
       </span>
     </h6>
   </div>
@@ -147,82 +145,63 @@
   </h5>
   <hr>
 </div>
-<%= form_for [@thesis, @enrollment], :html => {:role => :form, :class => "form-horizontal"} do |f| %>
-  <div class="form-group">
-    <div class="col-md-8">
-      <%= f.label :student_id, t(:label_student_singular) %>
-      <div>
-        <%= f.text_field :student_id, {:value => enrolled_student, :class => "typeahead typeahead-student form-control #{"force-visible" unless can_enroll?}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(can_enroll? ? {} : {:disabled => true}) %>
-        <%= f.hidden_field :student_id %>
+<% @enrollments.each do |enrollment| %>
+  <%= form_for [@thesis, enrollment], :html => {:role => :form, :class => "form-horizontal"} do |f| %>
+    <div class="form-group">
+      <div class="col-md-12">
+        <%= f.label :student_id, t(:label_student_singular) %>
+        <div>
+          <%= f.text_field :student_id, {:value =>  current_user.try(:student?) && (can_enroll?(enrollment) || current_user.student.has_enrollment?(enrollment)) ? current_user.student.surname_name : enrollment.student.try(:surname_name), :class => "typeahead typeahead-student form-control #{"force-visible" if disableable?(enrollment)}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(disableable?(enrollment) ? {:disabled => true} : {}) %>
+          <%= f.hidden_field :student_id, {:value => can_enroll?(enrollment) && current_user.try(:student?) ? current_user.student.surname_name : nil} %>
+        </div>
       </div>
     </div>
-    <div class="col-md-8">
-      <% if !current_user || current_user.student? %>
-        <%= f.label :enrollment_type_id, t(:label_enrollment_type_singular) %>
-        <%= f.select :enrollment_type_id, options_for_select(@enrollments_types.collect{|et| [et.name, et.id] }, @enrollment.enrollment_type_id), {}, {:class => "form-control #{"force-visible" unless can_enroll?}"}.merge(can_enroll? ? {} : {:disabled => true}) %>
-      <% end %>
-    </div>
-  </div>
-  <div class="form-group extra-margin">
-    <div class="col-md-16">
-      <div class="pull-right">
-        <span style="padding-right: 1em;">
-          <% if enrolled? %>
-            <%= t(:label_thesis_enrolled_by_employee, :student => @student.surname_name) %>
-          <% elsif enrollments_available? %>
-            <% if !current_user  %>
-              <%=t :label_thesis_enroll_login_first %>
-            <% elsif can_enroll? %>
+    <div class="form-group extra-margin">
+      <div class="col-md-16">
+        <div class="">
+          <%= f.submit t(:label_save), {:class => "btn btn-danger"}.merge(disableable?(enrollment) ? {:disabled => true} : {}) %>
+          <span style="padding-left: 1em;">
+            <% if enrollment_accepted?(enrollment) %>
+              <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
+            <% elsif enrollments_available? %>
+              <% if !current_user  %>
+                <%=t :label_thesis_enroll_login_first %>
+              <% elsif can_enroll?(enrollment) %>
 
-            <% elsif defined?(@student) %>
-              <%= t(:label_thesis_enrolled_by_employee, :student => @student.surname_name) %>
+              <% elsif defined?(@student) %>
+                <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
+              <% else %>
+                <%= t(:label_thesis_enrolled) %>
+              <% end %>
             <% else %>
-              <%= t(:label_thesis_enrolled) %>
+              <%=t :label_enrollment_unavailable, :day => l(current_semester.thesis_enrollments_begin) %>
             <% end %>
-          <% else %>
-            <%=t :label_enrollment_unavailable, :day => l(current_semester.thesis_enrollments_begin) %>
-          <% end %>
-        </span>
-        <%= f.submit t(:label_save), {:class => "btn btn-danger"}.merge(can_enroll? ? {} : {:disabled => true}) %>
+          </span>
+        </div>
+        <div class="clearfix"></div>
       </div>
-      <div class="clearfix"></div>
     </div>
-  </div>
+  <% end %>
 <% end %>
 <div class="section-footer ">
   <hr>
 </div>
-<div class="subsection-header extra-margin">
-  <h4>
-    <%=t :label_enrollment_main_plural %>
-  </h4>
-</div>
-<table class="table">
-  <tbody>
-    <% if @primary_enrollments.present? %>
-      <%= render :partial => "enrollment_record", :collection => @primary_enrollments %>
-    <% else %>
-      <tr>
-        <td>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-<div class="subsection-header extra-margin">
-  <h4>
-    <%=t :label_enrollment_optional_plural %>
-  </h4>
-</div>
-<table class="table">
-  <tbody>
-    <% if @secondary_enrollments.present? %>
-      <%= render :partial => "enrollment_record", :collection => @secondary_enrollments %>
-    <% else %>
-      <tr>
-        <td>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<% if current_user %>
+  <div class="subsection-header extra-margin">
+    <h4>
+      <%=t :label_enrollment_plural %>
+    </h4>
+  </div>
+  <table class="table">
+    <tbody>
+      <% if @all_enrollments.present? %>
+        <%= render :partial => "enrollment_record", :collection => @all_enrollments %>
+      <% else %>
+        <tr>
+          <td>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

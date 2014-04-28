@@ -10,7 +10,7 @@ class Diamond::ThesesController < DiamondController
 
   respond_to :html, :js
 
-  DEFAULT_FILTERS = {:course => :course_ids, :supervisor => :supervisor_id, :thesis_type => :thesis_type_id, :annual => :annual_id}.freeze
+  DEFAULT_FILTERS = {:status => :status, :department => :department_id, :course => :course_ids, :supervisor => :supervisor_id, :thesis_type => :thesis_type_id, :annual => :annual_id}.freeze
 
   ALLOWED_ACTIONS = [Diamond::Thesis::ACTION_REJECT, Diamond::Thesis::ACTION_ACCEPT].freeze
 
@@ -28,16 +28,14 @@ class Diamond::ThesesController < DiamondController
       @theses = @theses.visible
     end
 
-
-
-    @filters = {}.tap do |h|
-      if current_user
-        h[:status] = :status
-      else
-        h[:department] = :department_id
-      end
-    end
-    @filters.merge! DEFAULT_FILTERS
+    #    @filters = {}.tap do |h|
+    #      if current_user && can?(:manage_own, Diamond::Thesis)
+    #        h[:status] = :status
+    #      else
+    #        h[:department] = :department_id
+    #      end
+    #    end
+    @filters = DEFAULT_FILTERS
 
     respond_with @theses do |f|
       f.js { render :layout => false }
@@ -46,7 +44,7 @@ class Diamond::ThesesController < DiamondController
 
   def new
     @thesis = Diamond::Thesis.new
-    @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
+    2.times { @thesis.enrollments.build }
     @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
@@ -75,30 +73,26 @@ class Diamond::ThesesController < DiamondController
   end
 
   def show
-    @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
-    @primary_enrollments = @thesis.enrollments.primary
-    @secondary_enrollments = @thesis.enrollments.secondary
+    @thesis = Diamond::Thesis.includes(:courses, :enrollments).find(params[:id])
     @student_studies = StudentStudies.joins(:studies, :student => :theses)
     .includes(:studies => [:course => :translations, :study_type => :translations])
     .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)", @thesis.student_ids, @thesis.course_ids)
-    if !current_user || (current_user && current_user.employee?)
-      @enrollment = @thesis.enrollments.build
-    elsif enrolled?
-      @enrollment = @thesis.enrollments.primary.accepted.first
+    @all_enrollments = @thesis.enrollments.to_a
+    if enrolled?
+      @enrollments = @thesis.enrollments.accepted
     else
-      @enrollment = current_user.verifable.enrollments.where(thesis_id: @thesis.id).first || @thesis.enrollments.build
+      @enrollments = @thesis.enrollments.accepted
+      @enrollments |= @thesis.enrollments.pending if current_user.try(:student?)
+      @enrollments |= (@thesis.student_amount - @enrollments.length).times.collect { @thesis.enrollments.build }
     end
-    if @thesis.current_state >= :assigned
-      @student = Student.find(@thesis.enrollments.primary.first.student_id)
-    end
-    @enrollments_types = [Diamond::ThesisEnrollmentType.includes(:translations)
-      .send(@primary_enrollments.present? && !defined?(@student) ? :secondary : :load)].flatten
   end
 
   def edit
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
     if @thesis.enrollments.blank? && can?(:manage_own, @thesis)
-      @thesis.enrollments.build(enrollment_type: Diamond::ThesisEnrollmentType.primary)
+      2.times do
+        @thesis.enrollments.build
+      end
     end
     @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
     @thesis_types = Diamond::ThesisType.includes(:translations).load
@@ -179,7 +173,7 @@ class Diamond::ThesesController < DiamondController
     attrs = [:title_pl, :title_en, :description, :supervisor_id,
       :thesis_type_id, :student_amount, :annual_id, :course_ids => []
     ]
-    attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]} if can?(:manage, Diamond::Thesis)
+    attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]} if can?(:manage_own, Diamond::Thesis)
     params.require(:thesis).permit(attrs)
   end
 
@@ -196,8 +190,8 @@ class Diamond::ThesesController < DiamondController
     end
   end
 
-
   def enrolled?
-    @thesis.current_state >= :assigned
+    @thesis.current_state >= :assigned && @thesis.enrollments.length >= @thesis.student_amount
   end
+
 end

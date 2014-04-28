@@ -13,7 +13,11 @@ module Diamond::ThesesHelper
 
   def status_filter_content
     return @status_filter if defined?(@status_filter)
-    @status_filter = [[t(:label_all), nil]] | Diamond::Thesis.workflow_spec.states.keys.collect {|w| [state_label(w),w] }
+    manage_states = [].tap do |s|
+      s << :unaccepted  if cannot?(:manage_own, Diamond::Thesis)
+      s << :rejected  if cannot?(:manage, Diamond::Thesis)
+    end
+    @status_filter = [[t(:label_all), nil]] | (Diamond::Thesis.workflow_spec.states.keys - manage_states).collect {|w| [state_label(w),w] }
   end
 
   def course_filter_content
@@ -55,20 +59,28 @@ module Diamond::ThesesHelper
     @enrollments_available = current_semester.thesis_enrollments_begin <= now && now <= current_semester.thesis_enrollments_end
   end
 
-  def can_enroll?
-    return @can_enroll if defined?(@can_enroll)
-    @can_enroll =  (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user.present? && @thesis.try(:current_state) < :assigned && @enrollment.new_record?
+  def can_enroll?(enrollment)
+    @can_enrollments = {} unless defined?(@can_enrollments)
+    return @can_enrollments[enrollment] if @can_enrollments.has_key?(enrollment)
+    @can_enrollments[enrollment] = (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user.present? &&
+    @thesis.try(:current_state) < :assigned &&
+    enrollment.new_record?
+    @can_enrollments[enrollment] = current_user.try(:student?) ? @can_enrollments[enrollment] && !current_user.verifable.enrolled_for_thesis?(@thesis) : @can_enrollments[enrollment]
+  end
+
+  def enrollment_accepted?(enrollment)
+    enrollment.current_state == :accepted
   end
 
   def thesis_record_menu_available?
     current_user && can?(:manage_own, Diamond::Thesis)
   end
 
-  def enrolled_student
-    if defined?(@student)
-      @student.try(:surname_name)
-    elsif current_user.try(:student?)
-      current_user.try(:verifable).try(:surname_name)
+  def disableable?(enrollment)
+    if current_user.try(:student?)
+      true
+    else
+      !can_enroll?(enrollment)# ? {} : {:disabled => true}
     end
   end
 

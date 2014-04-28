@@ -12,14 +12,12 @@ class Diamond::Thesis < ActiveRecord::Base
       event :reject, :transitions_to => :rejected
       event :assign, :transitions_to => :assigned
     end
-    state :rejected
-    state :open do
-      event :reserve, :transitions_to => :reserved
-      event :assign, :transitions_to => :assigned
+    state :rejected do
+      event :accept, :transitions_to => :open
     end
-    state :reserved do
+    state :open do
+      event :reject, :transitions_to => :rejected
       event :assign, :transitions_to => :assigned
-      event :reject, :transitions_to => :open
     end
     state :assigned do
       event :archive, :transitions_to => :archived
@@ -48,7 +46,7 @@ class Diamond::Thesis < ActiveRecord::Base
   }
   has_many :students, :through => :enrollments, :dependent => :nullify
   has_many :accepted_students,
-  -> { joins(:enrollments => :enrollment_type).where("#{Diamond::ThesisEnrollmentType.table_name}.code = ?", :primary) },
+  -> { where("#{Diamond::ThesisEnrollmen.table_name}.state = ?", :accepted) },
   :through => :enrollments, :dependent => :nullify, :source => :student
 
   scope :by_thesis_type, ->(tt) { where(:thesis_type_id => tt) }
@@ -57,8 +55,8 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :by_course, ->(c) {joins(:courses).where("#{Course.table_name}.id" => c) }
   scope :by_status, ->(s) { where(:state => s) }
   scope :by_department, ->(d) { where(:department_id => d) }
-  scope :visible, -> { where(:state => [:open, :reserved, :archived, :assigned]) }
-  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :reserved, :archived, :assigned], s) }
+  scope :visible, -> { where(:state => [:open, :archived, :assigned]) }
+  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :archived, :assigned], s) }
 
   def self.include_peripherals
     includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])
@@ -68,16 +66,16 @@ class Diamond::Thesis < ActiveRecord::Base
     courses.include?(course)
   end
 
+  def enrollments_count
+    enrollments.count
+  end
+
   def assigned?
     current_state  >= :assigned
   end
 
-  def primary_enrollments_count
-    enrollments.primary.count
-  end
-
-  def secondary_enrollments_count
-    enrollments.secondary.count
+  def has_required_students?
+    enrollments.accepted.length >= student_amount
   end
 
   private

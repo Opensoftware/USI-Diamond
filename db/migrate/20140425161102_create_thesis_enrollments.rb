@@ -1,9 +1,9 @@
 class CreateThesisEnrollments < ActiveRecord::Migration
   def change
     create_table :diamond_thesis_enrollments do |t|
-      t.string :state, :default => :pending
-      t.references :thesis, :student, :enrollment_type
-      t.timestamps
+	    t.string :state, :default => :pending
+	    t.references :thesis, :student
+	    t.timestamps
     end
 
     add_index(:diamond_thesis_enrollments, [:thesis_id, :student_id], name: 'enrollments_by_thesis_student')

@@ -1,6 +1,6 @@
 <tr>
   <td>
-    <%= enrollment_record.student.surname_name %>
+    <%=enrollment_record.student.surname_name %>
   </td>
   <td>
     <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; ss.present? ? ss.studies.course.to_s : "-"  %>
@@ -12,7 +12,7 @@
     <%=l(enrollment_record.created_at, :format => :short) %>
   </td>
   <td>
-    <% if can?(:manage_own, @thesis) && can_enroll? && enrollment_record.pending? %>
+    <% if can?(:manage_own, @thesis) && can_enroll?(enrollment_record) && enrollment_record.pending? %>
       <p>
         <span class="text-danger"><%=t 'misc.days', :count => 5%></span>
         <%=t :label_accept_period%>
@@ -27,7 +27,7 @@
         <p>
           <span class="text-muted">
             <%=t(:label_accept)%>
-            <span class="sep">|</span>
+            <span class="text-muted">|</span>
             <%=t(:label_reject)%>
           </span>
         </p>

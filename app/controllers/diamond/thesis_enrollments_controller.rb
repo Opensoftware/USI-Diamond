@@ -7,7 +7,6 @@ class Diamond::ThesisEnrollmentsController < DiamondController
       e.thesis_id = params[:thesis_id]
       if can?(:manage, Diamond::ThesisEnrollment)
         e.student_id = params[:thesis_enrollment][:student_id]
-        e.enrollment_type_id = Diamond::ThesisEnrollmentType.where(code: :primary).first.id
       else
         e.student_id = current_user.verifable_id
       end
@@ -16,12 +15,11 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     @enrollment.save
     if can?(:manage, Diamond::ThesisEnrollment)
       @enrollment.accept!
-      @thesis.assign!
+      @thesis.assign! if @thesis.can_assign? && @thesis.has_required_students?
       student = Student.find(@enrollment.student_id)
       flash[:notice] = t(:label_thesis_enrolled_by_employee, :student => student.surname_name)
     else
       flash[:notice] = t(:label_thesis_enrolled_by_student)
-      @thesis.reserve! if @enrollment.primary?
     end
     redirect_to thesis_path(params[:thesis_id])
   end
@@ -30,8 +28,8 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     @enrollment = Diamond::ThesisEnrollment.find(params[:id])
     @enrollment.accept! if @enrollment.can_accept?
     thesis = Diamond::Thesis.find(params[:thesis_id])
-    thesis.assign! if thesis.can_assign?
-    (thesis.enrollments - [@enrollment]).each do |enrollment|
+    thesis.assign! if thesis.can_assign? && thesis.has_required_students?
+    (thesis.enrollments - [@enrollment]) | @enrollment.student.enrollments.to_a.each do |enrollment|
       enrollment.reject! if enrollment.can_reject?
     end
     redirect_to thesis_path(params[:thesis_id]),
@@ -41,8 +39,6 @@ class Diamond::ThesisEnrollmentsController < DiamondController
   def reject
     @enrollment = Diamond::ThesisEnrollment.find(params[:id])
     @enrollment.reject! if @enrollment.can_reject?
-    thesis = Diamond::Thesis.find(params[:thesis_id])
-    thesis.reject! if thesis.can_reject?
     redirect_to thesis_path(params[:thesis_id])
   end
 

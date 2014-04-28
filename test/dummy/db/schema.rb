@@ -86,29 +86,10 @@ ActiveRecord::Schema.define(version: 20140425181713) do
     t.datetime "updated_at"
   end
 
-  create_table "diamond_thesis_enrollment_type_translations", force: true do |t|
-    t.integer  "diamond_thesis_enrollment_type_id", null: false
-    t.string   "locale",                            null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.string   "name"
-  end
-
-  add_index "diamond_thesis_enrollment_type_translations", ["diamond_thesis_enrollment_type_id"], name: "index_9bfbb8f2c724c66a9680c34be38dcd73afe820d7", using: :btree
-  add_index "diamond_thesis_enrollment_type_translations", ["locale"], name: "index_diamond_thesis_enrollment_type_translations_on_locale", using: :btree
-
-  create_table "diamond_thesis_enrollment_types", force: true do |t|
-    t.string   "name"
-    t.string   "code"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "diamond_thesis_enrollments", force: true do |t|
-    t.string   "state",              default: "pending"
+    t.string   "state",      default: "pending"
     t.integer  "thesis_id"
     t.integer  "student_id"
-    t.integer  "enrollment_type_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

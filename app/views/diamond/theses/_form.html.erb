@@ -6,12 +6,12 @@
 <% end %>
 
 <div class="form-group extra-margin">
-  <%= f.text_field :title_pl, :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true, :minlength => "2"   %>
+  <%= f.text_field :title_pl, :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true   %>
 </div>
 <hr/>
 <div class="form-group extra-margin">
   <%= f.label :title_en, t(:label_thesis_singular_en) %>
-  <%= f.text_field :title_en, :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en)  %>
+  <%= f.text_field :title_en, :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en), :required => true  %>
 </div>
 <div class="form-group extra-margin">
   <%= f.label :thesis_type, t(:label_genre) %>
@@ -38,7 +38,7 @@
 </div>
 <div class="form-group extra-margin">
   <%= f.label :description, t(:label_thesis_desc) %>
-  <%= f.text_area :description, :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6 %>
+  <%= f.text_area :description, :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6, :required => true %>
 </div>
 <% if can?(:manage, Diamond::Thesis) %>
   <div class="form-group extra-margin">
@@ -60,24 +60,26 @@
   </div>
 <% end %>
 <% if can?(:manage_own, Diamond::Thesis) %>
-  <div class="form-group extra-margin">
-    <div class="row">
-      <div class="col-md-10">
-        <%= f.fields_for :enrollments do |g| %>
-          <%= g.label :student_id, t(:label_student_singular) %>
-          <div>
-            <%= g.text_field :student_id, :value => g.object.student.try(:surname_name), :class => "typeahead typeahead-student form-control", :autocomplete => :off, :placeholder => t(:label_student_provide_surname) %>
-            <%= g.hidden_field :enrollment_type_id, :value => g.object.enrollment_type_id %>
-            <%= g.hidden_field :student_id %>
+  <div class="enrollments">
+    <%= f.fields_for :enrollments do |g| %>
+      <div class="form-group extra-margin" style="<%= "display: none;" if (g.index+1) > @thesis.student_amount %>">
+        <div class="row">
+          <div class="col-md-10">
+
+            <%= g.label :student_id, t(:label_student_singular) %>
+            <div>
+              <%= g.text_field :student_id, :value => g.object.student.try(:surname_name), :class => "typeahead typeahead-student form-control", :autocomplete => :off, :placeholder => t(:label_student_provide_surname) %>
+              <%= g.hidden_field :student_id %>
+            </div>
           </div>
-        <% end %>
+          <div class="col-md-6">
+            <p style="margin-top: 23px">
+              <%=t :notice_provide_student%>
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="col-md-6">
-        <p style="margin-top: 23px">
-          <%=t :notice_provide_student%>
-        </p>
-      </div>
-    </div>
+    <% end %>
   </div>
 <% end %>
 <div class="form-group">
