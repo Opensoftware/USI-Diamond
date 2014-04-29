@@ -84,6 +84,14 @@ module Diamond::ThesesHelper
     end
   end
 
+  def can_edit?(thesis)
+    @can_edit = {} unless defined?(@can_edit)
+    return @can_edit[thesis] if @can_edit.has_key?(thesis)
+    @can_edit[thesis] = thesis.new_record? ||
+    ((can?(:manage_own, thesis) && thesis.try(:current_state) < :open) ||
+      (can?(:manage, thesis)))
+  end
+
   def format_status(status)
     color = case status.to_s
     when 'accepted' then

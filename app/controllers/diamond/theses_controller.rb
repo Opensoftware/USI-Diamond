@@ -1,3 +1,4 @@
+require_dependency 'diamond/disableable_form_builder'
 require 'has_scope'
 
 class Diamond::ThesesController < DiamondController

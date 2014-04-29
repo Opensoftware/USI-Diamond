@@ -9,7 +9,7 @@
     <div class="row">
       <div class="col-md-9"></div>
       <div class="col-md-2">
-        <% if can?(:destroy, @thesis) %>
+        <% if can?(:destroy, @thesis) && can_edit?(@thesis) %>
           <%= button_to thesis_path(@thesis), :method => :delete, :class => 'button-small button-small-red button-delete has-tooltip', :type => :button, 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title=>t(:label_remove) do %>
             <%= content_tag :i, nil, :class => 'icon icon-white icon-delete' %>
           <% end %>
@@ -20,13 +20,15 @@
           <%= content_tag :i, nil, :class => 'icon icon-white icon-callendar' %>
         <% end %>
       </div>
+
       <div class="col-md-3">
-        <% if can?(:update, @thesis) %>
+        <% if can?(:update, @thesis) && can_edit?(@thesis) %>
           <%= link_to edit_thesis_path(@thesis), :class => 'button-small button-small-navy has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_edit) do %>
             <%= content_tag :i, nil, :class => 'icon icon-white icon-pen' %>
           <% end %>
         <% end %>
       </div>
+
     </div>
   <% end %>
 <% end %>

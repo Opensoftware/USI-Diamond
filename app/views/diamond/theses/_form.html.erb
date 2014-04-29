@@ -6,19 +6,19 @@
 <% end %>
 
 <div class="form-group extra-margin">
-  <%= f.text_field :title_pl, :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true   %>
+  <%= f.disableable_text_field :title_pl, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true   %>
 </div>
 <hr/>
 <div class="form-group extra-margin">
   <%= f.label :title_en, t(:label_thesis_singular_en) %>
-  <%= f.text_field :title_en, :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en), :required => true  %>
+  <%= f.disableable_text_field :title_en, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en), :required => true  %>
 </div>
 <div class="form-group extra-margin">
   <%= f.label :thesis_type, t(:label_genre) %>
   <div class="row">
     <% @thesis_types.each do |tt| %>
       <div class="col-md-5">
-        <%= f.radio_button :thesis_type_id, tt.id, :required => true, :'aria-required' => true %>
+        <%= f.disableable_radio_button :thesis_type_id, !can_edit?(@thesis), tt.id, :required => true, :'aria-required' => true %>
         <%= f.label :thesis_type_id, tt.name %>
       </div>
     <% end %>
@@ -28,17 +28,17 @@
   <div class="row">
     <div class="col-md-8">
       <%= f.label :student_amount, t(:label_thesis_student_amount) %>
-      <%= f.select :student_amount, options_for_select([1,2].collect {|i| [i,i] }, @thesis.student_amount), {}, :class => "form-control" %>
+      <%= f.disableable_select :student_amount, !can_edit?(@thesis), options_for_select([1,2].collect {|i| [i,i] }, @thesis.student_amount), {}, :class => "form-control" %>
     </div>
     <div class="col-md-8">
       <%= f.label :annual_id, t(:label_annual) %>
-      <%= f.select :annual_id, options_for_select(annuals.collect {|annual| [annual,annual.id] }, current_annual.id), {}, :class => "form-control" %>
+      <%= f.disableable_select :annual_id, !can_edit?(@thesis), options_for_select(annuals.collect {|annual| [annual,annual.id] }, current_annual.id), {}, :class => "form-control" %>
     </div>
   </div>
 </div>
 <div class="form-group extra-margin">
   <%= f.label :description, t(:label_thesis_desc) %>
-  <%= f.text_area :description, :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6, :required => true %>
+  <%= f.disableable_text_area :description, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6, :required => true %>
 </div>
 <% if can?(:manage, Diamond::Thesis) %>
   <div class="form-group extra-margin">
@@ -59,7 +59,7 @@
     <%= f.hidden_field :supervisor_id, :value => current_user.verifable_id %>
   </div>
 <% end %>
-<% if can?(:manage_own, Diamond::Thesis) %>
+<% if can?(:manage_own, Diamond::Thesis) && @thesis.current_state < :assigned %>
   <div class="enrollments">
     <%= f.fields_for :enrollments do |g| %>
       <div class="form-group extra-margin" style="<%= "display: none;" if (g.index+1) > @thesis.student_amount %>">
@@ -73,9 +73,11 @@
             </div>
           </div>
           <div class="col-md-6">
-            <p style="margin-top: 23px">
-              <%=t :notice_provide_student%>
-            </p>
+            <% unless @thesis.assigned? %>
+              <p style="margin-top: 23px">
+                <%=t :notice_provide_student%>
+              </p>
+            <% end %>
           </div>
         </div>
       </div>
@@ -88,11 +90,15 @@
     <div class="row">
       <% arr.each do |course| %>
         <div class="col-md-4">
-          <%= button_tag course.name, :class => "selectable-btn #{"selectable-btn-hover" if @thesis.assigned_to_course?(course) }", :type => "button" %>
-          <%= hidden_field_tag 'thesis[course_ids][]', course.id, (!@thesis.assigned_to_course?(course) || @thesis.new_record? ? {:disabled => true} : {}) %>
+          <%= disableable_button_tag course.name, !can_edit?(@thesis), :class => "selectable-btn #{"selectable-btn-hover" if @thesis.assigned_to_course?(course) }", :type => "button" %>
+          <% if can_edit?(@thesis) %>
+            <%= hidden_field_tag 'thesis[course_ids][]', course.id, (!@thesis.assigned_to_course?(course) || @thesis.new_record? ? {:disabled => true} : {}) %>
+          <% end %>
         </div>
       <% end %>
     </div>
   <% end %>
-  <%= hidden_field_tag 'thesis[course_ids][]' %>
+  <% if can_edit?(@thesis) %>
+    <%= hidden_field_tag 'thesis[course_ids][]' %>
+  <% end %>
 </div>

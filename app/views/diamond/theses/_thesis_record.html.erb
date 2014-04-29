@@ -1,8 +1,8 @@
-<div id="thesis-<%= thesis_record.id %>" style="<%= "opacity: 0.4;" if thesis_record.assigned? %>">
+<div id="thesis-<%= thesis_record.id %>" >
   <hr>
   <div class="row">
     <div class="col-md-1">
-      <div class="label-wrapper">
+      <div class="label-wrapper" style="<%= "opacity: 0.2;" if thesis_record.assigned? %>">
         <%= thesis_type_label(thesis_record) %>
       </div>
     </div>
@@ -103,7 +103,7 @@
       <div class="col-md-3">
         <div class="row">
           <div class="col-md-4">
-            <% if can?(:destroy, thesis_record) %>
+            <% if can?(:destroy, thesis_record) && can_edit?(thesis_record) %>
               <%= button_tag :class => 'button-small button-small-red button-delete has-tooltip', :type => :button, :'data-href' => thesis_path(thesis_record), 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title=>t(:label_remove) do %>
                 <%= content_tag :i, nil, :class => 'icon icon-white icon-delete' %>
               <% end %>
@@ -115,14 +115,14 @@
             <% end %>
           </div>
           <div class="col-md-4">
-            <% if can?(:update, thesis_record) %>
+            <% if can?(:update, thesis_record) && can_edit?(thesis_record) %>
               <%= link_to edit_thesis_path(thesis_record), :class => 'button-small button-small-navy has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_edit) do %>
                 <%= content_tag :i, nil, :class => 'icon icon-white icon-pen' %>
               <% end %>
             <% end %>
           </div>
           <div class="col-md-4">
-            <% if can?(:manage_own, thesis_record) %>
+            <% if can?(:manage_own, thesis_record) && can_edit?(thesis_record) %>
               <%= button_tag :class => 'button-small button-small-checkbox button-checkbox', :type => :button do %>
               <% end %>
               <%= hidden_field_tag 'thesis_ids[]', thesis_record.id, ({:disabled => true}) %>
