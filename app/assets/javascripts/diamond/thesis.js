@@ -18,13 +18,17 @@ $(document).ready(function() {
           success: function(response) {
             if(response.success) {
               if(response.clear) {
-                form.find("input, textarea").val("");
-                form.find("input[type='radio']").removeAttr('checked');
+                form.find("input:not(:radio), textarea").val("");
+                form.find("input[type='radio']").prop('checked', false);
                 form.find("button.selectable-btn").each(function() {
                   $(this).next().prop("disabled", true);
                   $(this).removeClass("selectable-btn-hover");
                 });
               }
+              $("div.flash-messages").html($.parseHTML(response.notice));
+              $("body,html").animate({
+                scrollTop: 100
+              }, 200);
             }
           }
         }

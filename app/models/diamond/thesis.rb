@@ -46,7 +46,7 @@ class Diamond::Thesis < ActiveRecord::Base
   }
   has_many :students, :through => :enrollments, :dependent => :nullify
   has_many :accepted_students,
-  -> { where("#{Diamond::ThesisEnrollmen.table_name}.state = ?", :accepted) },
+  -> { where("#{Diamond::ThesisEnrollment.table_name}.state = ?", :accepted) },
   :through => :enrollments, :dependent => :nullify, :source => :student
 
   scope :by_thesis_type, ->(tt) { where(:thesis_type_id => tt) }

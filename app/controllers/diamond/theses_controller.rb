@@ -60,7 +60,13 @@ class Diamond::ThesesController < DiamondController
       update_status
       respond_to do |f|
         f.json do
-          render :json => {:success => action_performed, :clear => true}.to_json
+          response = {:success => action_performed, :clear => true}
+          with_format(:html) do
+            if action_performed
+              response[:notice] = render_to_string(partial: 'common/flash_notice_template', locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
+            end
+          end
+          render :json => response.to_json
         end
         f.html do
           redirect_to thesis_path(@thesis)
