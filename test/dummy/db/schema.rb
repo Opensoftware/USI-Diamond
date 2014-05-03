@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140425181713) do
+ActiveRecord::Schema.define(version: 20140502153705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,6 +97,18 @@ ActiveRecord::Schema.define(version: 20140425181713) do
   add_index "diamond_thesis_enrollments", ["student_id"], name: "enrollments_by_student", using: :btree
   add_index "diamond_thesis_enrollments", ["thesis_id", "student_id"], name: "enrollments_by_thesis_student", using: :btree
   add_index "diamond_thesis_enrollments", ["thesis_id"], name: "enrollments_by_thesis", using: :btree
+
+  create_table "diamond_thesis_messages", force: true do |t|
+    t.integer  "audited_id"
+    t.integer  "employee_id"
+    t.string   "klazz"
+    t.string   "state",       default: "pending"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "diamond_thesis_messages", ["klazz", "audited_id"], name: "diamond_thesis_messages_by_klazz_audited_id", using: :btree
+  add_index "diamond_thesis_messages", ["klazz", "employee_id"], name: "diamond_thesis_messages_by_klazz_employee_id", using: :btree
 
   create_table "diamond_thesis_state_audits", force: true do |t|
     t.integer  "thesis_id"
@@ -233,6 +245,18 @@ ActiveRecord::Schema.define(version: 20140425181713) do
     t.datetime "updated_at"
   end
 
+  create_table "student_studies", force: true do |t|
+    t.integer  "semester_number", default: 1
+    t.integer  "student_id"
+    t.integer  "studies_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "student_studies", ["student_id", "studies_id"], name: "by_student_studies", using: :btree
+  add_index "student_studies", ["studies_id", "student_id", "semester_number"], name: "by_studies_student_semester_number", using: :btree
+  add_index "student_studies", ["studies_id", "student_id"], name: "by_studies_student", using: :btree
+
   create_table "students", force: true do |t|
     t.string   "name"
     t.string   "surname"
@@ -245,18 +269,17 @@ ActiveRecord::Schema.define(version: 20140425181713) do
   end
 
   create_table "studies", force: true do |t|
-    t.integer  "semester_number"
     t.integer  "course_id"
-    t.integer  "student_id"
     t.integer  "study_type_id"
     t.integer  "study_degree_id"
     t.integer  "specialty_id"
+    t.integer  "faculty_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "studies", ["course_id", "student_id"], name: "by_course_student", using: :btree
-  add_index "studies", ["student_id"], name: "studies_by_student", using: :btree
+  add_index "studies", ["course_id"], name: "studies_by_course", using: :btree
+  add_index "studies", ["faculty_id"], name: "studies_by_faculty", using: :btree
 
   create_table "study_degree_translations", force: true do |t|
     t.integer  "study_degree_id", null: false

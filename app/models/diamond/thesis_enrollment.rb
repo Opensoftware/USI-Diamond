@@ -1,5 +1,8 @@
+require_dependency 'diamond/message_generator.rb'
+
 class Diamond::ThesisEnrollment < ActiveRecord::Base
 
+  include Diamond::MessageGenerator
   include ::Workflow
   workflow_column :state
   workflow do
@@ -14,6 +17,9 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
   belongs_to :enrollment_type, :class_name => "Diamond::ThesisEnrollmentType"
   belongs_to :thesis, :class_name => "Diamond::Thesis"
   belongs_to :student, :class_name => "Student"
+  has_many :messages, -> { Diamond::ThesisMessage.for_enrollment },
+    :class_name => 'Diamond::ThesisMessage',
+    :foreign_key => :audited_id
 
   scope :accepted, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :accepted) }
   scope :pending, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :pending) }

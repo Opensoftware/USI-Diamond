@@ -40,10 +40,12 @@ class Diamond::Thesis < ActiveRecord::Base
   has_many :course_thesis, :class_name => "Diamond::CourseThesis", :dependent => :destroy
   has_many :courses, :through => :course_thesis
   has_many :thesis_state_audits, :class_name => "Diamond::ThesisStateAudit", :dependent => :destroy
+  has_many :audit_messages, :through => :thesis_state_audits, :source => :messages
   has_many :enrollments, :class_name => "Diamond::ThesisEnrollment", :dependent => :destroy
   accepts_nested_attributes_for :enrollments, :reject_if => lambda { |e|
     e[:student_id].blank?
   }
+  has_many :enrollment_messages, :through => :enrollments, :source => :messages
   has_many :students, :through => :enrollments, :dependent => :nullify
   has_many :accepted_students,
   -> { where("#{Diamond::ThesisEnrollment.table_name}.state = ?", :accepted) },
