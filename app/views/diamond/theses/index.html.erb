@@ -31,12 +31,12 @@
       <div class="col-md-11">
         <% if current_user %>
           <div class="pull-right">
-            <%= button_tag :class => 'select-all', :type => :button do %>
+            <%= button_tag :class => 'inline-btn select-all', :type => :button do %>
               <%= content_tag :i, nil, :class => 'icon icon-navy icon-checkbox-accept' %>
               <%=t :label_select_all%>
             <% end %>
             <%= form_tag collection_destroy_theses_path, :method => :delete do %>
-              <%= button_tag :class => 'destroy-all', :type => :button do %>
+              <%= button_tag :class => 'inline-btn destroy-all', :type => :button do %>
                 <%= content_tag :i, nil, :class => 'icon icon-red icon-delete' %>
                 <%=t :label_destroy_selected%>
               <% end %>
@@ -44,13 +44,13 @@
             <% if can?(:manage, Diamond::Thesis) %>
               <%= form_tag collection_update_theses_path, :method => :patch do %>
                 <%= hidden_field_tag :perform_action, Diamond::Thesis::ACTION_REJECT %>
-                <%= button_tag :class => 'deny-selected', :type => :button do %>
+                <%= button_tag :class => 'inline-btn deny-selected', :type => :button do %>
                   <%= content_tag :i, nil, :class => 'icon icon-red icon-right-arrow' %>
                   <%=t :label_deny_selected%>
                 <% end %>
               <% end %>
               <%= form_tag collection_update_theses_path, :method => :patch do %>
-                <%= button_tag :class => 'accept-selected', :type => :button do %>
+                <%= button_tag :class => 'inline-btn accept-selected', :type => :button do %>
                   <%= hidden_field_tag :perform_action, Diamond::Thesis::ACTION_ACCEPT %>
                   <%= content_tag :i, nil, :class => 'icon icon-red icon-accept' %>
                   <%=t :label_accept_selected%>
@@ -90,7 +90,7 @@
 <% if @theses.present? %>
   <%= form_tag url_for( :action => params[:action], :controller => params[:controller]), :class => 'theses-form' do %>
     <div class="theses-list">
-      <%= render :partial => 'thesis_record', :collection => @theses %>
+      <%= render :partial => 'diamond/common/thesis_record', :collection => @theses %>
     </div>
   <% end %>
 <% else %>

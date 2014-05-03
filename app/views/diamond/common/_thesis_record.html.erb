@@ -8,7 +8,7 @@
     </div>
     <div class="col-md-1<%=thesis_record_menu_available? ? 2 : 5%>">
       <h4>
-        <%= link_to thesis_record.title, thesis_path(thesis_record) %>
+        <%= link_to thesis_record.title, diamond.thesis_path(thesis_record) %>
       </h4>
       <div class="row">
         <div class="col-md-2">
@@ -104,7 +104,7 @@
         <div class="row">
           <div class="col-md-4">
             <% if can?(:destroy, thesis_record) && can_edit?(thesis_record) %>
-              <%= button_tag :class => 'button-small button-small-red button-delete has-tooltip', :type => :button, :'data-href' => thesis_path(thesis_record), 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title=>t(:label_remove) do %>
+              <%= button_tag :class => 'button-small button-small-red button-delete has-tooltip', :type => :button, :'data-href' => diamond.thesis_path(thesis_record), 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title=>t(:label_remove) do %>
                 <%= content_tag :i, nil, :class => 'icon icon-white icon-delete' %>
               <% end %>
             <% end %>
@@ -116,13 +116,13 @@
           </div>
           <div class="col-md-4">
             <% if can?(:update, thesis_record) && can_edit?(thesis_record) %>
-              <%= link_to edit_thesis_path(thesis_record), :class => 'button-small button-small-navy has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_edit) do %>
+              <%= link_to diamond.edit_thesis_path(thesis_record), :class => 'button-small button-small-navy has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_edit) do %>
                 <%= content_tag :i, nil, :class => 'icon icon-white icon-pen' %>
               <% end %>
             <% end %>
           </div>
           <div class="col-md-4">
-            <% if can?(:manage_own, thesis_record) && can_edit?(thesis_record) %>
+            <% if params[:controller] != 'dashboard' && can?(:manage_own, thesis_record) && can_edit?(thesis_record) %>
               <%= button_tag :class => 'button-small button-small-checkbox button-checkbox', :type => :button do %>
               <% end %>
               <%= hidden_field_tag 'thesis_ids[]', thesis_record.id, ({:disabled => true}) %>
