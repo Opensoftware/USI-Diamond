@@ -57,6 +57,13 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :by_department, ->(d) { where(:department_id => d) }
   scope :visible, -> { where(:state => [:open, :archived, :assigned]) }
   scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :archived, :assigned], s) }
+  scope :recently_accepted, -> { where(:state => :open) }
+  scope :recently_updated, -> { order("updated_at DESC") }
+  scope :recently_created, -> { newest }
+  scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
+  scope :newest_enrollments, -> { joins(:enrollments).order("#{Diamond::ThesisEnrollment.table_name}.created_at DESC") }
+  scope :newest, -> { order("created_at DESC") }
+  scope :pick_five, -> { limit(5) }
 
   def self.include_peripherals
     includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])
