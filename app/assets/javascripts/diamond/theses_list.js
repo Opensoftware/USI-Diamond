@@ -17,6 +17,16 @@ $(document).ready(function() {
   })
   .on("click", "button.button-checkbox", function() {
     $(this).trigger("checkbox-change-state");
+  })
+  .on("click", "a.button-accept", function() {
+    $(this).confirmable_action({
+      topic: 'confirmation_thesis_accept',
+      success_action: function(obj, key, value) {
+        $("#thesis-"+key).replaceWith($.parseHTML(value));
+      }
+    });
+    $(this).confirmable_action("show");
+    return false;
   });
 
   $("button.select-all").click(function() {
@@ -24,19 +34,19 @@ $(document).ready(function() {
   });
 
 
-  $("button.destroy-all").confirmable_action({
+  $("button.destroy-all").lazy_confirmable_action({
     topic: 'confirmation_theses_delete',
     success_action: function(obj, key, val) {
       $("#thesis-"+key).remove();
     }
   });
-  $("button.deny-selected").confirmable_action({
+  $("button.deny-selected").lazy_confirmable_action({
     topic: 'confirmation_theses_deny',
     success_action: function(obj, key, value) {
       $("#thesis-"+key).replaceWith($.parseHTML(value));
     }
   });
-  $("button.accept-selected").confirmable_action({
+  $("button.accept-selected").lazy_confirmable_action({
     topic: 'confirmation_theses_accept',
     success_action: function(obj, key, value) {
       $("#thesis-"+key).replaceWith($.parseHTML(value));
