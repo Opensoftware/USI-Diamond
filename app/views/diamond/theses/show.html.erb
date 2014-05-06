@@ -20,7 +20,6 @@
           <%= content_tag :i, nil, :class => 'icon icon-white icon-callendar' %>
         <% end %>
       </div>
-
       <div class="col-md-3">
         <% if can?(:update, @thesis) && can_edit?(@thesis) %>
           <%= link_to edit_thesis_path(@thesis), :class => 'button-small button-small-navy has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_edit) do %>
@@ -28,7 +27,6 @@
           <% end %>
         <% end %>
       </div>
-
     </div>
   <% end %>
 <% end %>
@@ -69,7 +67,7 @@
   </div>
   <div class="col-md-6">
     <h6 class="text-list">
-      <%= @thesis.thesis_type %>
+      <%= @thesis.thesis_type.name %>
     </h6>
   </div>
   <div class="col-md-2">
@@ -127,13 +125,19 @@
   </div>
   <div class="col-md-6">
     <h6 class="text-list">
-      <span>
-        <%= @thesis.student_amount %>
-      </span>
-      <span class="text-muted">|</span>
-      <span>
-        <%= @thesis.enrollments_count %>
-      </span>
+      <% if @thesis.assigned? %>
+        <span>
+          <%=t :label_enrollment_completed_short %>
+        </span>
+      <% else %>
+        <span>
+          <%= @thesis.student_amount %>
+        </span>
+        <span class="text-muted">|</span>
+        <span class="text-danger">
+          <%= @thesis.enrollments_count %>
+        </span>
+      <% end %>
     </h6>
   </div>
 </div>
@@ -161,19 +165,29 @@
     <div class="form-group extra-margin">
       <div class="col-md-16">
         <div class="">
-          <%= f.submit t(:label_save), {:class => "btn btn-danger"}.merge(disableable?(enrollment) ? {:disabled => true} : {}) %>
+          <%= f.submit t(:label_save), {:class => "btn btn-danger"}.merge(can_enroll?(enrollment) ? {} : {:disabled => true}) %>
           <span style="padding-left: 1em;">
             <% if enrollment_accepted?(enrollment) %>
               <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
             <% elsif enrollments_available? %>
               <% if !current_user  %>
                 <%=t :label_thesis_enroll_login_first %>
-              <% elsif can_enroll?(enrollment) %>
-
-              <% elsif defined?(@student) %>
-                <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
               <% else %>
-                <%= t(:label_thesis_enrolled) %>
+                <% if can_enroll?(enrollment) %>
+                  <% if current_user.employee? %>
+                    <%=t :label_thesis_enroll_by_employee %>
+                  <% else %>
+                    <%=t :label_enrollment_available %>
+                  <% end %>
+                <% elsif current_user.student? && current_user.student.enrolled? %>
+                  <%=t :label_thesis_enrolled %>
+                <% elsif defined?(@student) %>
+                  <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
+                <% elsif current_user.employee? && current_user.verifable_id != @thesis.supervisor_id %>
+                  <%=t :label_thesis_enrollment%>
+                <% else %>
+                  <%= t(:label_thesis_enrolled_for_thesis) %>
+                <% end %>
               <% end %>
             <% else %>
               <%=t :label_enrollment_unavailable, :day => l(current_semester.thesis_enrollments_begin) %>

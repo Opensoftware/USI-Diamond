@@ -9,7 +9,7 @@ class Diamond::ThesesController < DiamondController
   has_scope Diamond::Thesis, :by_course, :as => :course_ids
   has_scope Diamond::Thesis, :by_department, :as => :department_id
 
-  respond_to :html, :js
+  respond_to :html, :js, :json
 
   DEFAULT_FILTERS = {:status => :status, :department => :department_id, :course => :course_ids, :supervisor => :supervisor_id, :thesis_type => :thesis_type_id, :annual => :annual_id}.freeze
 
@@ -107,12 +107,27 @@ class Diamond::ThesesController < DiamondController
 
   def update
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
+    authorize! :update, @thesis
 
     if @thesis.update(thesis_params)
       update_status
       redirect_to thesis_path(@thesis)
     else
       render 'edit'
+    end
+  end
+
+  def accept
+    @thesis = Diamond::Thesis.include_peripherals.find(params[:id])
+    authorize! :update, @thesis
+
+    @thesis.accept! if @thesis.can_accept?
+
+    respond_with @thesis do |f|
+      f.json do
+        @action_performed = true
+        render :layout => false
+      end
     end
   end
 

@@ -3,16 +3,16 @@
     <%=enrollment_record.student.surname_name %>
   </td>
   <td>
-    <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; ss.present? ? ss.studies.course.to_s : "-"  %>
+    <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; ss.present? ? ss.studies.course.to_s : enrollment_record.student.studies.first.course.name  %>
   </td>
   <td>
-    <%= ss.present? ? t(:label_year_of_study_short, :year => semester_to_year_number(ss.semester_number)) : "-" %>
+    <%= t(:label_year_of_study_short, :year => semester_to_year_number(ss.present? ? ss.semester_number : enrollment_record.student.student_studies.first.semester_number)) %>
   </td>
   <td>
     <%=l(enrollment_record.created_at, :format => :short) %>
   </td>
   <td>
-    <% if can?(:manage_own, @thesis) && can_enroll?(enrollment_record) && enrollment_record.pending? %>
+    <% if can?(:manage_own, @thesis) && enrollment_record.pending? %>
       <p>
         <span class="text-danger"><%=t 'misc.days', :count => 5%></span>
         <%=t :label_accept_period%>

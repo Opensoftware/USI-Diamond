@@ -43,7 +43,7 @@ module Diamond::ThesesHelper
   def collection_update_content
     @theses.reduce({}) do |sum, el|
       with_format(:html) do
-        sum[el.id] = (params[:status].present? && params[:status] != el.current_state.to_s ? '' : render(:partial => "thesis_record", :locals => {thesis_record: el}))
+        sum[el.id] = (params[:status].present? && params[:status] != el.current_state.to_s ? '' : render(:partial => "diamond/common/thesis_record", :locals => {thesis_record: el}))
       end
       sum
     end
@@ -59,9 +59,20 @@ module Diamond::ThesesHelper
     @can_enrollments = {} unless defined?(@can_enrollments)
     return @can_enrollments[enrollment] if @can_enrollments.has_key?(enrollment)
     @can_enrollments[enrollment] = (enrollments_available? || can?(:manage, Diamond::Thesis)) && current_user.present? &&
-    @thesis.try(:current_state) < :assigned &&
-    enrollment.new_record?
-    @can_enrollments[enrollment] = current_user.try(:student?) ? @can_enrollments[enrollment] && !current_user.verifable.enrolled_for_thesis?(@thesis) : @can_enrollments[enrollment]
+      @thesis.try(:current_state) < :assigned &&
+      enrollment.new_record?
+    if current_user.try(:student?)
+      # may enroll if not yet enrolled for any thesis
+      @can_enrollments[enrollment] &&= !current_user.verifable.enrolled?
+      # may enroll if not yet enrolled for given thesis
+      @can_enrollments[enrollment] &&= !current_user.verifable.enrolled_for_thesis?(@thesis)
+    elsif current_user.try(:employee?)
+      # may enroll student if it's supervisor and it's his thesis
+      if cannot?(:manage, @thesis)
+        @can_enrollments[enrollment] &&= @thesis.supervisor_id == current_user.verifable_id
+      end
+    end
+    @can_enrollments[enrollment]
   end
 
   def enrollment_accepted?(enrollment)
@@ -76,7 +87,7 @@ module Diamond::ThesesHelper
     if current_user.try(:student?)
       true
     else
-      !can_enroll?(enrollment)# ? {} : {:disabled => true}
+      !can_enroll?(enrollment)
     end
   end
 
@@ -84,8 +95,8 @@ module Diamond::ThesesHelper
     @can_edit = {} unless defined?(@can_edit)
     return @can_edit[thesis] if @can_edit.has_key?(thesis)
     @can_edit[thesis] = thesis.new_record? ||
-    ((can?(:manage_own, thesis) && thesis.try(:current_state) < :open) ||
-      (can?(:manage, thesis)))
+      ((can?(:manage_own, thesis) && thesis.try(:current_state) < :open) ||
+        (can?(:manage, thesis)))
   end
 
 end
