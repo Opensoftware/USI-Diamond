@@ -9,6 +9,7 @@ class Diamond::ThesisStateAudit < ActiveRecord::Base
   has_many :messages,
     -> { Diamond::ThesisMessage.for_thesis_state },
     :class_name => 'Diamond::ThesisMessage',
-    :foreign_key => :audited_id
+    :foreign_key => :audited_id,
+    :dependent => :destroy
 
 end

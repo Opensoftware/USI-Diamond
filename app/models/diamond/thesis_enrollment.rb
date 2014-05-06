@@ -19,7 +19,8 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
   belongs_to :student, :class_name => "Student"
   has_many :messages, -> { Diamond::ThesisMessage.for_enrollment },
     :class_name => 'Diamond::ThesisMessage',
-    :foreign_key => :audited_id
+    :foreign_key => :audited_id,
+    :dependent => :destroy
 
   scope :accepted, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :accepted) }
   scope :pending, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :pending) }

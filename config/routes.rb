@@ -1,6 +1,10 @@
 Diamond::Engine.routes.draw do
 
+  resources :thesis_messages, :only => [:update]
   resources :theses do
+    member do
+      patch :accept
+    end
     resources :thesis_enrollments do
       member do
         get :accept
@@ -12,7 +16,5 @@ Diamond::Engine.routes.draw do
       patch :collection_update
     end
   end
-
-
 
 end

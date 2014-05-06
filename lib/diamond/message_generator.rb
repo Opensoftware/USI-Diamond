@@ -7,7 +7,7 @@ module Diamond
 
     private
     def create_message
-      ::Resque.enqueue(ThesisMessageGenerator, self.id, self.class.name, User.current.verifable_id)
+      ::Resque.enqueue(ThesisMessageGenerator, self.id, self.class.name, User.current.try(:verifable_id))
     end
   end
 end
