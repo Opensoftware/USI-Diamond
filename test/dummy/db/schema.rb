@@ -100,15 +100,17 @@ ActiveRecord::Schema.define(version: 20140502153705) do
 
   create_table "diamond_thesis_messages", force: true do |t|
     t.integer  "audited_id"
-    t.integer  "user_id"
+    t.integer  "auditor_id"
+    t.integer  "recipient_id"
     t.string   "klazz"
-    t.string   "state",      default: "pending"
+    t.string   "state",        default: "pending"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   add_index "diamond_thesis_messages", ["klazz", "audited_id"], name: "diamond_thesis_messages_by_klazz_audited_id", using: :btree
-  add_index "diamond_thesis_messages", ["klazz", "user_id"], name: "diamond_thesis_messages_by_klazz_user_id", using: :btree
+  add_index "diamond_thesis_messages", ["klazz", "auditor_id"], name: "diamond_thesis_messages_by_klazz_auditor_id", using: :btree
+  add_index "diamond_thesis_messages", ["klazz", "recipient_id"], name: "diamond_thesis_messages_by_klazz_recipient_id", using: :btree
 
   create_table "diamond_thesis_state_audits", force: true do |t|
     t.integer  "thesis_id"
@@ -233,6 +235,7 @@ ActiveRecord::Schema.define(version: 20140502153705) do
 
   create_table "roles", force: true do |t|
     t.string   "name",        limit: 40
+    t.string   "const_name"
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
