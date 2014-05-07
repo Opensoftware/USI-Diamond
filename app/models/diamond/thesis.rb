@@ -63,6 +63,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :recently_updated, -> { order("updated_at DESC") }
   scope :recently_created, -> { newest }
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
+  scope :assigned, -> { where(:state => [:assigned, :archived]) }
   scope :newest_enrollments, -> { joins(:enrollments).order("#{Diamond::ThesisEnrollment.table_name}.created_at DESC") }
   scope :newest, -> { order("created_at DESC") }
   scope :pick_five, -> { limit(5) }
