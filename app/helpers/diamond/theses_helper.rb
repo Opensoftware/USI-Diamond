@@ -14,8 +14,9 @@ module Diamond::ThesesHelper
   def status_filter_content
     return @status_filter if defined?(@status_filter)
     manage_states = [].tap do |s|
-      s << :unaccepted  if cannot?(:manage_own, Diamond::Thesis)
-      s << :rejected  if cannot?(:manage, Diamond::Thesis)
+      s << :unaccepted  if !(cannot?(:manage_own, Diamond::Thesis) ||
+        can?(:manage_department, Diamond::Thesis))
+      s << :rejected  if cannot?(:manage_department, Diamond::Thesis)
     end
     @status_filter = [[t(:label_all), nil]] | (Diamond::Thesis.workflow_spec.states.keys - manage_states).collect {|w| [state_label(w),w] }
   end
@@ -66,11 +67,6 @@ module Diamond::ThesesHelper
       @can_enrollments[enrollment] &&= !current_user.verifable.enrolled?
       # may enroll if not yet enrolled for given thesis
       @can_enrollments[enrollment] &&= !current_user.verifable.enrolled_for_thesis?(@thesis)
-    elsif current_user.try(:employee?)
-      # may enroll student if it's supervisor and it's his thesis
-      if cannot?(:manage, @thesis)
-        @can_enrollments[enrollment] &&= @thesis.supervisor_id == current_user.verifable_id
-      end
     end
     @can_enrollments[enrollment]
   end
@@ -80,7 +76,7 @@ module Diamond::ThesesHelper
   end
 
   def thesis_record_menu_available?
-    current_user && can?(:manage_own, Diamond::Thesis)
+    current_user && (can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis))
   end
 
   def disableable?(enrollment)
@@ -96,7 +92,7 @@ module Diamond::ThesesHelper
     return @can_edit[thesis] if @can_edit.has_key?(thesis)
     @can_edit[thesis] = thesis.new_record? ||
       ((can?(:manage_own, thesis) && thesis.try(:current_state) < :open) ||
-        (can?(:manage, thesis)))
+        (can?(:manage_department, thesis)))
   end
 
 end

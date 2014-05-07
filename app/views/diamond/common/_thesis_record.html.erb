@@ -89,9 +89,9 @@
         <div class="col-md-6">
           <h6 class="text-list">
             <% if thesis_record.assigned? %>
-            <span>
-              <%=t :label_enrollment_completed_short %>
-            </span>
+              <span>
+                <%=t :label_enrollment_completed_short %>
+              </span>
             <% else %>
               <span>
                 <%= thesis_record.student_amount %>
@@ -115,7 +115,7 @@
               <% end %>
             <% end %>
           </div>
-          <% if thesis_record.current_state < :open && can?(:manage, thesis_record) && can_edit?(thesis_record) %>
+          <% if thesis_record.current_state < :open && can?(:manage_department, thesis_record) && can_edit?(thesis_record) %>
             <div class="col-md-3">
               <%= link_to diamond.accept_thesis_path(thesis_record), :class => 'button-small button-small-navy button-accept has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_accept) do %>
                 <%= content_tag :i, nil, :class => 'icon icon-white icon-accept' %>
@@ -135,7 +135,7 @@
             <% end %>
           </div>
           <div class="col-md-3">
-            <% if params[:controller] != 'dashboard' && can?(:manage_own, thesis_record) && can_edit?(thesis_record) %>
+            <% if params[:controller] != 'dashboard' && can_edit?(thesis_record) %>
               <%= button_tag :class => 'button-small button-small-checkbox button-checkbox', :type => :button do %>
               <% end %>
               <%= hidden_field_tag 'thesis_ids[]', thesis_record.id, ({:disabled => true}) %>

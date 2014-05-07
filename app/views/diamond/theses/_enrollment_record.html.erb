@@ -22,7 +22,7 @@
     <% end %>
   </td>
   <td>
-    <% if can?(:manage_own, @thesis) %>
+    <% if can?(:manage_own, @thesis) || can?(:manage_department, @thesis) %>
       <% if enrolled? || !enrollment_record.pending? %>
         <p>
           <span class="text-muted">

@@ -17,12 +17,14 @@ class Diamond::ThesesController < DiamondController
 
   helper_method :enrolled?
 
+  authorize_resource :except => [:index, :accept]
+
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
     .include_peripherals
     .order("lower(title) ASC")
     .paginate(:page => params[:page].to_i < 1 ? 1 : params[:page], :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
-    if can?(:manage, Diamond::Thesis)
+    if can?(:manage_department, Diamond::Thesis)
     elsif can?(:manage_own, Diamond::Thesis)
       @theses = @theses.for_supervisor(current_user.verifable_id)
     elsif !current_user || cannot?(:manage, Diamond::Thesis)
@@ -195,7 +197,9 @@ class Diamond::ThesesController < DiamondController
     attrs = [:title_pl, :title_en, :description, :supervisor_id,
       :thesis_type_id, :student_amount, :annual_id, :course_ids => []
     ]
-    attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]} if can?(:manage_own, Diamond::Thesis)
+    if can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis)
+      attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]}
+    end
     params.require(:thesis).permit(attrs)
   end
 

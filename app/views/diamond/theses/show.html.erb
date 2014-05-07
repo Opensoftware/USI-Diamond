@@ -1,6 +1,6 @@
 <% content_for :additional_javascripts do %>
   <%= javascript_include_tag 'diamond/show_thesis' %>
-  <% if (can?(:manage_own, @thesis) && enrollments_available?) || can?(:manage, @thesis) %>
+  <% if (can?(:manage_own, @thesis) && enrollments_available?) || can?(:manage_department, @thesis) %>
     <%= javascript_include_tag 'student_autocomplete' %>
   <% end %>
 <% end %>
