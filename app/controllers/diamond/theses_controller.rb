@@ -55,8 +55,12 @@ class Diamond::ThesesController < DiamondController
   def create
     @thesis = Diamond::Thesis.new thesis_params
 
-    if @thesis.supervisor_id.present?
+    if can?(:manage, Diamond::Thesis) && @thesis.supervisor_id.present?
+      # If current_user is an admin, assign thesis to supervisor department
       @thesis.department_id = @thesis.supervisor.department_id
+    elsif can?(:manage_department, Diamond::Thesis)
+      # If current_user is a department admin, assign thesis to his department
+      @thesis.department_id = current_user.verifable.department_id
     end
 
     if action_performed = @thesis.save
@@ -195,7 +199,8 @@ class Diamond::ThesesController < DiamondController
   private
   def thesis_params
     attrs = [:title_pl, :title_en, :description, :supervisor_id,
-      :thesis_type_id, :student_amount, :annual_id, :course_ids => []
+      :thesis_type_id, :student_amount, :annual_id, :department_id,
+      :course_ids => []
     ]
     if can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis)
       attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]}

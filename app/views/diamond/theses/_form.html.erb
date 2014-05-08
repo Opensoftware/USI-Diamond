@@ -1,5 +1,5 @@
 <% content_for :additional_javascripts do %>
-  <% if can?(:manage_own, Diamond::Thesis) %>
+  <% if can?(:manage_department, Diamond::Thesis) %>
     <%= javascript_include_tag 'student_autocomplete' %>
     <%= javascript_include_tag 'supervisor_autocomplete' %>
   <% end %>
@@ -40,7 +40,7 @@
   <%= f.label :description, t(:label_thesis_desc) %>
   <%= f.disableable_text_area :description, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_desc_enter), :rows => 6, :required => true %>
 </div>
-<% if can?(:manage, Diamond::Thesis) %>
+<% if can?(:manage_department, Diamond::Thesis) %>
   <div class="form-group extra-margin">
     <div class="row">
       <div class="col-md-10">
@@ -57,6 +57,7 @@
 <% else %>
   <div>
     <%= f.hidden_field :supervisor_id, :value => current_user.verifable_id %>
+    <%= f.hidden_field :department_id, :value => current_user.verifable.department_id %>
   </div>
 <% end %>
 <% if can?(:manage_own, Diamond::Thesis) && @thesis.current_state < :assigned %>
