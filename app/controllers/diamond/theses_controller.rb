@@ -31,13 +31,6 @@ class Diamond::ThesesController < DiamondController
       @theses = @theses.visible
     end
 
-    #    @filters = {}.tap do |h|
-    #      if current_user && can?(:manage_own, Diamond::Thesis)
-    #        h[:status] = :status
-    #      else
-    #        h[:department] = :department_id
-    #      end
-    #    end
     @filters = DEFAULT_FILTERS
 
     respond_with @theses do |f|
@@ -47,9 +40,7 @@ class Diamond::ThesesController < DiamondController
 
   def new
     @thesis = Diamond::Thesis.new
-    2.times { @thesis.enrollments.build }
-    @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
-    @thesis_types = Diamond::ThesisType.includes(:translations).load
+    new_thesis_preload
   end
 
   def create
@@ -63,25 +54,32 @@ class Diamond::ThesesController < DiamondController
       @thesis.department_id = current_user.verifable.department_id
     end
 
-    if action_performed = @thesis.save
+    if @thesis.save
       update_status
-      respond_to do |f|
-        f.json do
-          response = {:success => action_performed, :clear => true}
-          with_format(:html) do
-            if action_performed
-              response[:notice] = render_to_string(partial: 'common/flash_notice_template', locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
-            end
+    end
+    respond_to do |f|
+      f.json do
+        response = {:success => true, :clear => @thesis.persisted?}
+        with_format(:html) do
+          if @thesis.persisted?
+            response[:notice] = render_to_string(partial: 'common/flash_notice_template',
+              locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
+          else
+            response[:error] = render_to_string(partial: 'common/flash_error_template',
+              locals: {msg: t(:error_thesis_persistence_failed) } )
           end
-          render :json => response.to_json
         end
-        f.html do
-          redirect_to thesis_path(@thesis)
+        render :json => response.to_json
+      end
+      f.html do
+        if @thesis.persisted?
+          redirect_to thesis_path(@thesis), :flash => {:notice => t(:label_thesis_added, title: @thesis.title)}
+        else
+          flash.now[:error] = t(:error_thesis_persistence_failed)
+          new_thesis_preload
+          render action: :new
         end
       end
-
-    else
-
     end
   end
 
@@ -224,6 +222,12 @@ class Diamond::ThesesController < DiamondController
 
   def enrolled?
     @thesis.current_state >= :assigned && @thesis.enrollments.length >= @thesis.student_amount
+  end
+
+  def new_thesis_preload
+    2.times { @thesis.enrollments.build }
+    @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
+    @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
 
 end
