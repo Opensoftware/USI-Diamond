@@ -24,7 +24,7 @@
     </div>
   <% end %>
 <% end %>
-<% if can?(:manage_own, Diamond::Thesis) %>
+<% if can?(:create, Diamond::Thesis) %>
   <% content_for :content_heading do %>
     <div class="row">
       <div class="col-md-5"></div>
@@ -41,7 +41,7 @@
                 <%=t :label_destroy_selected%>
               <% end %>
             <% end %>
-            <% if can?(:manage, Diamond::Thesis) %>
+            <% if can?(:manage_department, Diamond::Thesis) %>
               <%= form_tag collection_update_theses_path, :method => :patch do %>
                 <%= hidden_field_tag :perform_action, Diamond::Thesis::ACTION_REJECT %>
                 <%= button_tag :class => 'inline-btn deny-selected', :type => :button do %>

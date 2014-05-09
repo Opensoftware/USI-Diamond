@@ -17,7 +17,7 @@ class Diamond::ThesesController < DiamondController
 
   helper_method :enrolled?
 
-  authorize_resource :except => [:index, :accept]
+  authorize_resource :except => [:index, :accept, :collection_update]
 
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
@@ -140,6 +140,7 @@ class Diamond::ThesesController < DiamondController
   def collection_update
     @theses = Diamond::Thesis
     .include_peripherals.where(:id => params[:thesis_ids])
+    authorize! :update, Diamond::Thesis
     @action_performed = true
 
     Diamond::Thesis.transaction do
