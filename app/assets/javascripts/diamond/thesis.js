@@ -25,8 +25,11 @@ $(document).ready(function() {
                   $(this).removeClass("selectable-btn-hover");
                 });
               }
-              $("div.flash-messages").html($.parseHTML(response.notice))
-              .html($.parseHTML(response.error));
+              var flash = $("div.flash-messages");
+              flash.html($.parseHTML(response.notice));
+              if(response.error) {
+                flash.html($.parseHTML(response.error));
+              }
               $("body,html").animate({
                 scrollTop: 100
               }, 200);
