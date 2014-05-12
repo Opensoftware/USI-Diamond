@@ -87,14 +87,16 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.includes(:courses, :enrollments).find(params[:id])
     @student_studies = StudentStudies.joins(:studies, :student => :theses)
     .includes(:studies => [:course => :translations, :study_type => :translations])
-    .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)", @thesis.student_ids, @thesis.course_ids)
+    .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)",
+      @thesis.student_ids, @thesis.course_ids)
     @all_enrollments = @thesis.enrollments.to_a
     if enrolled?
       @enrollments = @thesis.enrollments.accepted
     else
       @enrollments = @thesis.enrollments.accepted
-      @enrollments |= @thesis.enrollments.pending if current_user.try(:student?)
-      @enrollments |= (@thesis.student_amount - @enrollments.length).times.collect { @thesis.enrollments.build }
+      @enrollments |= @thesis.enrollments.pending.for_student(current_user.verifable) if current_user.try(:student?)
+      @enrollments |= (@thesis.student_amount - @enrollments.length).times
+      .collect { @thesis.enrollments.build }
     end
   end
 
@@ -125,7 +127,10 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.include_peripherals.find(params[:id])
     authorize! :update, @thesis
 
-    @thesis.accept! if @thesis.can_accept?
+    if @thesis.can_accept?
+      @thesis.accept!
+      Diamond::ThesesMailer.accept_thesis(current_user.id, @thesis.id).deliver
+    end
 
     respond_with @thesis do |f|
       f.json do
@@ -147,6 +152,7 @@ class Diamond::ThesesController < DiamondController
           @theses.each do |thesis|
             action = Diamond::Thesis.const_get("action_#{params[:perform_action]}".upcase)
             thesis.send("#{action}!") if thesis.send("can_#{action}?")
+            Diamond::ThesesMailer.send("#{action}_thesis", current_user.id, @thesis.id).deliver
           end
         end
       rescue
@@ -165,7 +171,7 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.find(params[:id])
     authorize! :destroy, @thesis
 
-    #        @thesis.destroy
+    @thesis.destroy
     respond_with @thesis do |f|
       f.html do
         redirect_to theses_path
@@ -182,7 +188,7 @@ class Diamond::ThesesController < DiamondController
 
     Diamond::Thesis.transaction do
       begin
-        #                @theses.destroy_all
+        @theses.destroy_all
       rescue
         @action_performed = false
         raise ActiveRecord::Rollback

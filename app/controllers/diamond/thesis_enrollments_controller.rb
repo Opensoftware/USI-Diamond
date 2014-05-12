@@ -27,9 +27,9 @@ class Diamond::ThesisEnrollmentsController < DiamondController
             enrollment.reject! if enrollment.can_reject?
           end
         end
-
         flash[:notice] = t(:label_thesis_enrolled_by_employee, :student => student.surname_name)
       else
+        Diamond::ThesesMailer.new_enrollment(current_user.id, @enrollment.id).deliver
         flash[:notice] = t(:label_thesis_enrolled_by_student)
       end
     else
@@ -41,7 +41,10 @@ class Diamond::ThesisEnrollmentsController < DiamondController
   def accept
     @enrollment = Diamond::ThesisEnrollment.find(params[:id])
     authorize! :update, @enrollment
-    @enrollment.accept! if @enrollment.can_accept?
+    if @enrollment.can_accept?
+      @enrollment.accept!
+      Diamond::ThesesMailer.enrollment_accepted(@enrollment.id).deliver
+    end
     thesis = Diamond::Thesis.find(params[:thesis_id])
     thesis.assign! if thesis.can_assign? && thesis.has_required_students?
     (thesis.enrollments - [@enrollment]) | @enrollment.student.enrollments.to_a.each do |enrollment|
@@ -54,7 +57,10 @@ class Diamond::ThesisEnrollmentsController < DiamondController
   def reject
     @enrollment = Diamond::ThesisEnrollment.find(params[:id])
     authorize! :update, @enrollment
-    @enrollment.reject! if @enrollment.can_reject?
+    if @enrollment.can_reject?
+      @enrollment.reject!
+      Diamond::ThesesMailer.enrollment_rejected(@enrollment.id).deliver
+    end
     redirect_to thesis_path(params[:thesis_id])
   end
 

@@ -24,6 +24,7 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
 
   scope :accepted, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :accepted) }
   scope :pending, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :pending) }
+  scope :for_student, ->(student) { where("#{Diamond::ThesisEnrollment.table_name}.student_id" => student) }
 
   def get_studies
     joins(:thesis, :student => :studies).where("#{Diamond::Thesis.table_name}.student_id")
