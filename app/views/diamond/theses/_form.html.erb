@@ -6,12 +6,12 @@
 <% end %>
 
 <div class="form-group extra-margin">
-  <%= f.disableable_text_field :title_pl, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular), :required => true   %>
+  <%= f.disableable_text_area :title_pl, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular), :rows => 3, :required => true   %>
 </div>
 <hr/>
 <div class="form-group extra-margin">
   <%= f.label :title_en, t(:label_thesis_singular_en) %>
-  <%= f.disableable_text_field :title_en, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en), :required => true  %>
+  <%= f.disableable_text_area :title_en, !can_edit?(@thesis), :class => "form-control", :placeholder => t(:label_thesis_singular_enter_en), :rows => 3, :required => true  %>
 </div>
 <div class="form-group extra-margin">
   <%= f.label :thesis_type, t(:label_genre) %>
