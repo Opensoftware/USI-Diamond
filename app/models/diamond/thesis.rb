@@ -7,21 +7,33 @@ class Diamond::Thesis < ActiveRecord::Base
 
   workflow_column :state
   workflow do
+    # States:
+    # unaccepted - newly added thesis gets this status by default
+    # rejected - a department admin may reject any thesis, i.e. if its content
+    # is incorrect
+    # open - a department admin may accept any thesis and then it gets status open
+    # assigned - such thesis has student enrollments and it has been accepted by supervisor
+    # denied - a supervisor exceeded his theses limit for given annual
+    # archived - future state
     state :unaccepted do
       event :accept, :transitions_to => :open
       event :reject, :transitions_to => :rejected
       event :assign, :transitions_to => :assigned
+      event :deny, :transitions_to => :denied
     end
     state :rejected do
       event :accept, :transitions_to => :open
+      event :deny, :transitions_to => :denied
     end
     state :open do
       event :reject, :transitions_to => :rejected
       event :assign, :transitions_to => :assigned
+      event :deny, :transitions_to => :denied
     end
     state :assigned do
       event :archive, :transitions_to => :archived
     end
+    state :denied
     state :archived
     on_transition do |from, to, triggering_event, *event_args|
       Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => to, :employee_id => User.current.try(:verifable_id))
@@ -48,8 +60,8 @@ class Diamond::Thesis < ActiveRecord::Base
   has_many :enrollment_messages, :through => :enrollments, :source => :messages
   has_many :students, :through => :enrollments, :dependent => :nullify
   has_many :accepted_students,
-  -> { where("#{Diamond::ThesisEnrollment.table_name}.state = ?", :accepted) },
-  :through => :enrollments, :dependent => :nullify, :source => :student
+    -> { where("#{Diamond::ThesisEnrollment.table_name}.state = ?", :accepted) },
+    :through => :enrollments, :dependent => :nullify, :source => :student
 
   scope :by_thesis_type, ->(tt) { where(:thesis_type_id => tt) }
   scope :by_annual, ->(a) { where(:annual_id => a) }
@@ -64,6 +76,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :recently_created, -> { newest }
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
   scope :assigned, -> { where(:state => [:assigned, :archived]) }
+  scope :not_assigned, -> { where("state NOT IN (?)", [:unaccepted, :open, :rejected]) }
   scope :newest_enrollments, -> { joins(:enrollments).order("#{Diamond::ThesisEnrollment.table_name}.created_at DESC") }
   scope :newest, -> { order("created_at DESC") }
   scope :pick_five, -> { limit(5) }

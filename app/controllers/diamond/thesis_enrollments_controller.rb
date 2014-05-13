@@ -50,6 +50,7 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     (thesis.enrollments - [@enrollment]) | @enrollment.student.enrollments.to_a.each do |enrollment|
       enrollment.reject! if enrollment.can_reject?
     end
+    deny_theses(thesis.supervisor)
     redirect_to thesis_path(params[:thesis_id]),
       flash: {notice: t(:label_thesis_enrolled_by_employee, student: @enrollment.student.try(:surname_name))}
   end
@@ -61,12 +62,19 @@ class Diamond::ThesisEnrollmentsController < DiamondController
       @enrollment.reject!
       Diamond::ThesesMailer.enrollment_rejected(@enrollment.id).deliver
     end
+    deny_theses(@enrollment.thesis.supervisor)
     redirect_to thesis_path(params[:thesis_id])
   end
 
   private
   def enrollment_params
     params.require(:thesis_enrollment).permit(:enrollment_type_id, :student_id)
+  end
+
+  def deny_theses(supervisor)
+    unless supervisor.thesis_limit_not_exceeded?
+      supervisor.deny_remaining_theses!
+    end
   end
 
 end

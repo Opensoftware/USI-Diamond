@@ -54,8 +54,27 @@ class Diamond::ThesesController < DiamondController
       @thesis.department_id = current_user.verifable.department_id
     end
 
-    if @thesis.save
-      update_status
+    supervisor = current_user.verifable
+    supervisor = Employee.where(id: @thesis.supervisor_id).first if can?(:manage_department, Diamond::Thesis)
+    msg = ""
+
+    if supervisor.present?
+      if supervisor.thesis_limit_not_exceeded?
+        update_status if @thesis.save
+      else
+        supervisor.deny_remaining_theses!
+      end
+    end
+    unless @thesis.persisted?
+      if supervisor.blank?
+        msg = t(:error_thesis_supervisor_not_given)
+      elsif supervisor.thesis_limit_not_exceeded?
+        msg = t(:error_thesis_persistence_failed)
+      else
+        msg = t(:error_thesis_limit_exceeded,
+          :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
+          :supervisor => @thesis.supervisor.surname_name)
+      end
     end
     respond_to do |f|
       f.json do
@@ -66,7 +85,7 @@ class Diamond::ThesesController < DiamondController
               locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
           else
             response[:error] = render_to_string(partial: 'common/flash_error_template',
-              locals: {msg: t(:error_thesis_persistence_failed) } )
+              locals: {msg: msg } )
           end
         end
         render :json => response.to_json
@@ -75,7 +94,7 @@ class Diamond::ThesesController < DiamondController
         if @thesis.persisted?
           redirect_to thesis_path(@thesis), :flash => {:notice => t(:label_thesis_added, title: @thesis.title)}
         else
-          flash.now[:error] = t(:error_thesis_persistence_failed)
+          flash.now[:error] = msg
           new_thesis_preload
           render action: :new
         end
@@ -227,7 +246,7 @@ class Diamond::ThesesController < DiamondController
   end
 
   def enrolled?
-    @thesis.current_state >= :assigned && @thesis.enrollments.length >= @thesis.student_amount
+    @thesis.current_state >= :assigned && @thesis.enrollments.accepted.length >= @thesis.student_amount
   end
 
   def new_thesis_preload
