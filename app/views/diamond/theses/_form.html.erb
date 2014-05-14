@@ -60,7 +60,7 @@
     <%= f.hidden_field :department_id, :value => current_user.verifable.department_id %>
   </div>
 <% end %>
-<% if can?(:manage_own, Diamond::Thesis) && @thesis.current_state < :assigned %>
+<% if (can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis)) && @thesis.current_state < :assigned %>
   <div class="enrollments">
     <%= f.fields_for :enrollments do |g| %>
       <div class="form-group extra-margin" style="<%= "display: none;" if (g.index+1) > @thesis.student_amount %>">
