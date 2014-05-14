@@ -6,6 +6,9 @@
     <%= ss = @student_studies.detect {|ss| ss.student_id == enrollment_record.student_id }; ss.present? ? ss.studies.course.to_s : enrollment_record.student.studies.first.course.name  %>
   </td>
   <td>
+    <%= ss.present? ? ss.studies.study_type.name : enrollment_record.student.studies.first.study_type.name %>
+  </td>
+  <td>
     <%= t(:label_year_of_study_short, :year => semester_to_year_number(ss.present? ? ss.semester_number : enrollment_record.student.student_studies.first.semester_number)) %>
   </td>
   <td>
