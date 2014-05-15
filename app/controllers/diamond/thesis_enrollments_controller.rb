@@ -47,8 +47,11 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     end
     thesis = Diamond::Thesis.find(params[:thesis_id])
     thesis.assign! if thesis.can_assign? && thesis.has_required_students?
-    (thesis.enrollments - [@enrollment]) | @enrollment.student.enrollments.to_a.each do |enrollment|
-      enrollment.reject! if enrollment.can_reject?
+    ((thesis.enrollments - [@enrollment]) | @enrollment.student.enrollments.to_a).each do |enrollment|
+      if enrollment.can_reject?
+        enrollment.reject!
+        Diamond::ThesesMailer.enrollment_rejected(enrollment.id).deliver
+      end
     end
     deny_theses(thesis.supervisor)
     redirect_to thesis_path(params[:thesis_id]),
