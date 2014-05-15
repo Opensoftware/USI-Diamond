@@ -77,7 +77,27 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
   scope :assigned, -> { where(:state => [:assigned, :archived]) }
   scope :not_assigned, -> { where("state NOT IN (?)", [:unaccepted, :open, :rejected]) }
-  scope :newest_enrollments, -> { joins(:enrollments).order("#{Diamond::ThesisEnrollment.table_name}.created_at DESC") }
+  scope :newest_enrollments, -> { [] }
+  scope :supervisor_newest_enrollments, ->(employee) { Diamond::Thesis.find_by_sql("SELECT a.maxcreated, b.*
+FROM (
+        SELECT bb.thesis_id, MAX(bb.created_at) AS maxcreated
+        FROM diamond_thesis_enrollments bb
+        GROUP BY bb.thesis_id
+) a
+INNER JOIN diamond_theses b ON a.thesis_id = b .id
+WHERE b.supervisor_id = #{employee.id}
+ORDER BY a.maxcreated DESC
+LIMIT 5") }
+  scope :department_newest_enrollments, ->(employee) { Diamond::Thesis.find_by_sql("SELECT a.maxcreated, b.*
+FROM (
+        SELECT bb.thesis_id, MAX(bb.created_at) AS maxcreated
+        FROM diamond_thesis_enrollments bb
+        GROUP BY bb.thesis_id
+) a
+INNER JOIN diamond_theses b ON a.thesis_id = b .id
+WHERE b.department_id = #{employee.department_id}
+ORDER BY a.maxcreated DESC
+LIMIT 5") }
   scope :newest, -> { order("created_at DESC") }
   scope :pick_five, -> { limit(5) }
 
