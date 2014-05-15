@@ -40,4 +40,8 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
     joins(:thesis, :student => :studies).where("#{Diamond::Thesis.table_name}.student_id")
   end
 
+  def days_for_acceptance
+    ((self.created_at+Settings.enrollment_days_limit.days).to_date - Time.now.to_date).to_i
+  end
+
 end

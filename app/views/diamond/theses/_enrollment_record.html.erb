@@ -17,7 +17,7 @@
   <td>
     <% if can?(:manage_own, @thesis) && enrollment_record.pending? %>
       <p>
-        <span class="text-danger"><%=t 'misc.days', :count => 5%></span>
+        <span class="text-danger"><%=t 'misc.days', :count => enrollment_record.days_for_acceptance %></span>
         <%=t :label_accept_period%>
       </p>
     <% else %>
