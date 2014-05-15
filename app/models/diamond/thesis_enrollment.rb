@@ -26,6 +26,16 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
   scope :pending, -> { where("#{Diamond::ThesisEnrollment.table_name}.state" => :pending) }
   scope :for_student, ->(student) { where("#{Diamond::ThesisEnrollment.table_name}.student_id" => student) }
 
+  def self.reject_exceeded_enrollments!
+    Diamond::ThesisEnrollment.pending.where("created_at < ?",
+      Time.zone.now - Settings.enrollment_days_limit.to_i*1.day).each do |enrollment|
+      if enrollment.can_reject?
+        enrollment.reject!
+        Diamond::ThesesMailer.enrollment_rejected_timeout(enrollment.id).deliver
+      end
+    end
+  end
+
   def get_studies
     joins(:thesis, :student => :studies).where("#{Diamond::Thesis.table_name}.student_id")
   end
