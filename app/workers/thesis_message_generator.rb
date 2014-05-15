@@ -25,7 +25,9 @@ class ThesisMessageGenerator
             thesis.department_id, Role.where(const_name: :department_admin).first)
           .pluck("#{User.table_name}.id")
         end
+        t
       end
+
       recipients.uniq.each do |r|
         Diamond::ThesisMessage.create(klazz: klazz, audited_id: audited_id,
           auditor_id: auditor.try(:verifable_id),
