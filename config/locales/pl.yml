@@ -57,6 +57,7 @@ pl:
   label_thesis_plural: Tematy prac
   label_thesis_plural_official: Prace dyplomowe
   label_thesis_plural_short: Tematy
+  label_thesis_reports_to: Zgłasza tematy do katedry
   label_thesis_added: Dodano temat pracy %{title}
   label_thesis_added_count: "%{current}/%{max}: dodano temat pracy %{title}"
   label_thesis_new_plural: Dodaj tematy
