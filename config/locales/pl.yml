@@ -1,0 +1,124 @@
+pl:
+  misc:
+    days:
+      zero: 0 dni
+      one: 1 dzień
+      other: "%{count} dni"
+    thesis_accepted:
+      zero: 0 zaakceptowanych
+      one: 1 zaakceptowany
+      other: "%{count} zaakceptowanych"
+    thesis_chosen:
+      zero: 0 wybranych
+      one: 1 wybrany
+      other: "%{count} wybranych"
+    thesis_not_chosen:
+      zero: 0 niewybranych
+      one: 1 niewybrany
+      other: "%{count} niewybranych"
+
+
+  error_login_first: Zaloguj się najpierw, aby uzyskać dostęp do wybranego zasobu systemu.
+  error_resource_forbidden: Nie masz uprawnień do wybranego zasobu. Jeżeli jednak uważasz, że to błąd, to skontaktuj się z administratorem systemu.
+  error_thesis_persistence_failed: "Wystąpił problem z zapisem tematu pracy dyplomowej: %{errors}"
+  error_thesis_limit_exceeded: Limit przypisanych prac (%{limit}) dla %{supervisor} został wyczerpany
+  error_thesis_supervisor_not_given: Nie podano danych promotora lub są one nieprawidłowe
+
+  label_field_of_study_singular: Kierunek
+  label_field_of_study_plural: Kierunki
+  label_filter_field_of_study: Kierunek
+  label_filter_course: Kierunek
+  label_filter_department: Katedra
+  label_filter_status: Status
+  label_filter_supervisor: Promotor
+  label_filter_thesis_type: Rodzaj
+  label_filter_annual: Rocznik
+  label_filter_action: Filtruj
+  label_filter_recently_accepted: Ostatnio zaakceptowane
+  label_filter_recently_updated: Ostatnio zaktualizowane
+  label_filter_recently_created: Ostatnio dodane
+  label_filter_unaccepted: Niezaakceptowane
+  label_filter_newest_enrollments: Z najnowszymi zapisami
+  label_filter_newest: Najnowsze
+  label_supervisor_singular: Promotor
+  label_supervisor_provide_surname: Uzupełnij nazwisko promotora
+  label_department_singular: Katedra
+  label_permission_plural: Uprawnienia
+  label_status_open: Opublikowana
+  label_status_unaccepted: Niezaakceptowana
+  label_status_rejected: Odrzucone
+  label_status_unpublished: Nieopublikowana
+  label_status_published: Opublikowana
+  label_status_reserved: Zarezerwowana
+  label_status_assigned: Przypisana
+  label_status_archived: Archiwalna
+  label_status_accepted: Zaakceptowane
+  label_status_pending: W oczekiwaniu
+  label_thesis_plural: Tematy prac
+  label_thesis_plural_official: Prace dyplomowe
+  label_thesis_plural_short: Tematy
+  label_thesis_added: Dodano temat pracy %{title}
+  label_thesis_added_count: "%{current}/%{max}: dodano temat pracy %{title}"
+  label_thesis_new_plural: Dodaj tematy
+  label_thesis_new_singular: Nowy temat pracy
+  label_thesis_singular: Temat pracy
+  label_thesis_singular_en: Temat pracy w języku angielskim
+  label_thesis_singular_enter_en: Podaj temat w języku angielskim
+  label_thesis_singular_edit: Edycja tematu
+  label_thesis_plural_count: Ustaw liczbę tematów
+  label_thesis_plural_count_department: Maksymalna liczba wybranych tematów promotora
+  label_thesis_student_amount: Liczba studentów
+  label_thesis_desc: Opis pracy
+  label_thesis_desc_enter: Podaj opis pracy
+  label_thesis_list_move: Przejdź do listy tematów
+  label_thesis_browse_yours: Przeglądaj swoje tematy
+  label_thesis_browse_field_of_study: Przeglądaj tematy Twojego kierunku
+  label_thesis_chosen_yours: Twoje wybory tematów
+  label_thesis_title_manage_own: Twoje tematy
+  label_thesis_title_manage_department: Tematy katedry
+  label_thesis_title_manage: Tematy wydziału
+  label_thesis_not_found: Nie znaleziono żadnych tematów dla zadanych kryteriów.
+  label_thesis_found: Znaleziono %{x} wyników dla zadanych kryteriów. Strona %{current_page} z %{total_pages}
+  label_thesis_limit_exceeded_manage_own: W roczniku %{annual} dodałeś(aś) już maksymalną liczbę prac (%{count})
+  label_thesis_limit_exceeded_manage_department: Wybrany promotor w roczniku %{annual} ma już dodaną maksymalną liczbę prac (%{count})
+  label_thesis_limit_exceeded_manage: Wybrany promotor w roczniku %{annual} ma już dodaną maksymalną liczbę prac (%{count})
+  label_thesis_accept: Masz %{days} na akceptację
+  label_thesis_enroll: Zapisz się do tego tematu
+  label_thesis_enroll_first: Zapisz się na temat pracy dyplomowej
+  label_thesis_enroll_by_employee: Przypisz studenta do tego tematu
+  label_thesis_enroll_login_first: Zaloguj się, jeżeli chcesz zapisać się na ten temat
+  label_thesis_enrollment: Tylko promotor pracy lub koordynator może przypisać studenta do tematu
+  label_thesis_enrolled: Wybrałeś(aś) już temat pracy dyplomowej
+  label_thesis_enrolled_for_thesis: Zapisałeś(aś) się już do tego tematu
+  label_thesis_enrolled_by_student: Udało Ci się zapisać na ten temat
+  label_thesis_enrolled_by_employee: Student %{student} został przypisany do tego tematu
+  label_thesis_enrolled_count: Wybrane
+  label_thesis_not_enrolled_count: Niewybrane
+  label_enrollment_plural: Zapisy
+  label_enrollment_begin: Rozpoczęcie zapisów
+  label_enrollment_end: Zakończenie zapisów
+  label_enrollment_manage: Zarządzanie terminami
+  label_enrollment_unavailable: Zapisy na tematy prac dyplomowych zaczynaja się dnia %{day}
+  label_enrollment_type_singular: Rodzaj zgłoszenia
+  label_enrollment_completed_short: Zakończone
+  label_enrollment_available: Możesz zapisać się na ten temat pracy dyplomowej
+  label_enrollment_empty: Nikt się jeszcze nie zapisał na żaden temat
+
+  mail_subject_new_enrollment: Nowe przypisanie do tematu
+  mail_subject_enrollment_rejected: Temat odrzucony przez promotora
+  mail_subject_enrollment_rejected_timeout: Temat automatycznie odrzucony z powodu braku akceptacji przez promotora
+  mail_subject_enrollment_accepted: Temat zaakceptowany do realizacji
+  mail_subject_thesis_accepted: Zaakceptowana praca dyplomowa
+  mail_subject_thesis_rejected: Odrzucona praca dyplomowa
+  mail_body_new_enrollment: "Student %{student} zapisał(a) się na temat pracy dyplomowej %{thesis_title}. Masz 5 dni na akceptację tego zgłoszenia, a jeżeli tego nie zrobisz, to zostanie ono automatycznie odrzucone. "
+  mail_body_enrollment_rejected: Promotor %{supervisor} odrzucił Twoją prośbę o przypisanie do tematu %{thesis_title}.
+  mail_body_enrollment_rejected_timeout: System automatycznie odrzucił Twoją prośbę o przypisanie do tematu %{thesis_title}, ponieważ od czasu zgłoszenia minęło %{enrollment_days_limit}, a promotor %{supervisor} nie podjął żadnej czynności.
+  mail_body_enrollment_accepted: Promotor %{supervisor} zaakceptował Twoją prośbę o przypisanie do tematu pracy dyplomowej %{thesis_title}.
+  mail_body_thesis_accepted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została zaakceptowana przez %{admin}."
+  mail_body_thesis_rejected: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została odrzucona przez %{admin}."
+  mail_body_auto_msg: Wiadomość wygenerowana automatycznie z systemu SZS AGH. Nie odpowiadaj na nią.
+
+
+  diamond:
+    link:
+      new_thesis: Nowa praca dyplomowa

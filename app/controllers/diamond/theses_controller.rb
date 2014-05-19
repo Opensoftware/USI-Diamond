@@ -69,7 +69,7 @@ class Diamond::ThesesController < DiamondController
       if supervisor.blank?
         msg = t(:error_thesis_supervisor_not_given)
       elsif supervisor.thesis_limit_not_exceeded?
-        msg = t(:error_thesis_persistence_failed)
+        msg = t(:error_thesis_persistence_failed, errors: @thesis.errors.full_messages)
       else
         msg = t(:error_thesis_limit_exceeded,
           :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
