@@ -121,6 +121,10 @@ LIMIT 5") }
     enrollments.accepted.length >= student_amount
   end
 
+  def accept_enrollments!
+    enrollments.each(&:accept!)
+  end
+
   private
   def create_initial_audit
     Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => :unaccepted, :employee_id => User.current.try(:verifable_id))

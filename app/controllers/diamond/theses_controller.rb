@@ -75,6 +75,8 @@ class Diamond::ThesesController < DiamondController
           :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
           :supervisor => @thesis.supervisor.surname_name)
       end
+    else
+      @thesis.accept_enrollments! if can?(:manage_department, Diamond::Thesis)
     end
     respond_to do |f|
       f.json do
