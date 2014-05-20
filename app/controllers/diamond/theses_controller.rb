@@ -171,7 +171,7 @@ class Diamond::ThesesController < DiamondController
           @theses.each do |thesis|
             action = Diamond::Thesis.const_get("action_#{params[:perform_action]}".upcase)
             thesis.send("#{action}!") if thesis.send("can_#{action}?")
-            Diamond::ThesesMailer.send("#{action}_thesis", current_user.id, @thesis.id).deliver
+            Diamond::ThesesMailer.send("#{action}_thesis", current_user.id, thesis.id).deliver
           end
         end
       rescue
