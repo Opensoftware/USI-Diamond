@@ -1,6 +1,13 @@
 $(document).ready(function() {
   var validation_form = $( "form.new-thesis" );
-  var validation_handler = validation_form.validate();
+  var validation_handler = validation_form.validate({
+    ignore: "",
+    rules: {
+      "thesis[course_ids][]": {
+        required:true
+      }
+    }
+  });
 
   $("button.selectable-btn").click(function() {
     $(this).toggleClass('selectable-btn-hover');
