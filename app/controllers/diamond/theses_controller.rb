@@ -41,6 +41,11 @@ class Diamond::ThesesController < DiamondController
   def new
     @thesis = Diamond::Thesis.new
     new_thesis_preload
+    if @courses.blank? && cannot?(:manage, Diamond::Thesis)
+      flash[:error] = t(:error_employee_department_blank,
+        employee: current_user.verifable.surname_name)
+      redirect_to diamond.theses_path
+    end
   end
 
   def create
@@ -253,7 +258,10 @@ class Diamond::ThesesController < DiamondController
 
   def new_thesis_preload
     2.times { @thesis.enrollments.build }
-    @courses = current_user.verifable.academy_unit.faculty.courses.includes(:translations).load.in_groups_of(2, false)
+    unless current_user.verifable.department.blank?
+      @courses = current_user.verifable.department.faculty.courses
+      .includes(:translations).load.in_groups_of(2, false)
+    end
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
 

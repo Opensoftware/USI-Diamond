@@ -17,12 +17,11 @@ pl:
       one: 1 niewybrany
       other: "%{count} niewybranych"
 
-
-  error_login_first: Zaloguj się najpierw, aby uzyskać dostęp do wybranego zasobu systemu.
   error_resource_forbidden: Nie masz uprawnień do wybranego zasobu. Jeżeli jednak uważasz, że to błąd, to skontaktuj się z administratorem systemu.
   error_thesis_persistence_failed: "Wystąpił problem z zapisem tematu pracy dyplomowej: %{errors}"
   error_thesis_limit_exceeded: Limit przypisanych prac (%{limit}) dla %{supervisor} został wyczerpany
   error_thesis_supervisor_not_given: Nie podano danych promotora lub są one nieprawidłowe
+  error_employee_department_blank: Pracownik %{employee} nie został przypisany do żadnej Katedry, w której ma zgłosić tematy. W celu rozwiązania problemu należy skontaktować się z wydziałowym administratorem systemu.
 
   label_field_of_study_singular: Kierunek
   label_field_of_study_plural: Kierunki

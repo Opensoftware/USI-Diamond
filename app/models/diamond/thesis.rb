@@ -43,6 +43,8 @@ class Diamond::Thesis < ActiveRecord::Base
     end
   end
 
+  validates_presence_of :department_id
+
   after_create :create_initial_audit
 
   translates :title, :description
