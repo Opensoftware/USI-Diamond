@@ -36,7 +36,10 @@ class Diamond::Thesis < ActiveRecord::Base
     state :denied
     state :archived
     on_transition do |from, to, triggering_event, *event_args|
-      Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => to, :employee_id => User.current.try(:verifable_id))
+      if User.current.present?
+        Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => to,
+          :employee_id => User.current.try(:verifable_id))
+      end
     end
   end
 
