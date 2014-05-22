@@ -27,6 +27,16 @@ $(document).ready(function() {
     });
     $(this).confirmable_action("show");
     return false;
+  })
+  .on("click", "a.button-revert-to-open", function() {
+    $(this).confirmable_action({
+      topic: 'confirmation_thesis_revert_to_open',
+      success_action: function(obj, key, value) {
+        $("#thesis-"+key).replaceWith($.parseHTML(value));
+      }
+    });
+    $(this).confirmable_action("show");
+    return false;
   });
 
 

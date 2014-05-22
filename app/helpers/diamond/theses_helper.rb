@@ -15,8 +15,9 @@ module Diamond::ThesesHelper
     return @status_filter if defined?(@status_filter)
     manage_states = [].tap do |s|
       s << :unaccepted  if !(cannot?(:manage_own, Diamond::Thesis) ||
-        can?(:manage_department, Diamond::Thesis))
+          can?(:manage_department, Diamond::Thesis))
       s << :rejected  if cannot?(:manage_department, Diamond::Thesis)
+      s << :denied if cannot?(:create, Diamond::Thesis)
     end
     @status_filter = [[t(:label_all), nil]] | (Diamond::Thesis.workflow_spec.states.keys - manage_states).collect {|w| [state_label(w),w] }
   end

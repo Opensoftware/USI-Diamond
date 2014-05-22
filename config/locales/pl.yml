@@ -23,6 +23,8 @@ pl:
   error_thesis_supervisor_not_given: Nie podano danych promotora lub są one nieprawidłowe
   error_employee_department_blank: Pracownik %{employee} nie został przypisany do żadnej Katedry, w której ma zgłosić tematy. W celu rozwiązania problemu należy skontaktować się z wydziałowym administratorem systemu.
 
+  label_accept_revert: Cofnij przypisanie
+
   label_field_of_study_singular: Kierunek
   label_field_of_study_plural: Kierunki
   label_filter_field_of_study: Kierunek
@@ -53,6 +55,7 @@ pl:
   label_status_archived: Archiwalna
   label_status_accepted: Zaakceptowane
   label_status_pending: W oczekiwaniu
+  label_status_denied: Wyłączone z obiegu
   label_thesis_plural: Tematy prac
   label_thesis_plural_official: Prace dyplomowe
   label_thesis_plural_short: Tematy
@@ -109,6 +112,7 @@ pl:
   mail_subject_enrollment_rejected_timeout: Temat automatycznie odrzucony z powodu braku akceptacji przez promotora
   mail_subject_enrollment_accepted: Temat zaakceptowany do realizacji
   mail_subject_thesis_accepted: Zaakceptowana praca dyplomowa
+  mail_subject_thesis_reverted: Praca dyplomowa cofnięta z powrotem do puli wyboru dla studentów
   mail_subject_thesis_rejected: Odrzucona praca dyplomowa
   mail_body_new_enrollment: "Student %{student} zapisał(a) się na temat pracy dyplomowej %{thesis_title}. Masz 5 dni na akceptację tego zgłoszenia, a jeżeli tego nie zrobisz, to zostanie ono automatycznie odrzucone. "
   mail_body_enrollment_rejected: Promotor %{supervisor} odrzucił Twoją prośbę o przypisanie do tematu %{thesis_title}.
@@ -116,6 +120,7 @@ pl:
   mail_body_enrollment_accepted: Promotor %{supervisor} zaakceptował Twoją prośbę o przypisanie do tematu pracy dyplomowej %{thesis_title}.
   mail_body_thesis_accepted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została zaakceptowana przez %{admin}."
   mail_body_thesis_rejected: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została odrzucona przez %{admin}."
+  mail_body_thesis_reverted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została cofnięta z powrotem do puli wyboru dla studentów przez %{admin}. Wszelkie dotychczasowe przypisania studentów do tej pracy zostały usunięte."
   mail_body_auto_msg: Wiadomość wygenerowana automatycznie z systemu SZS AGH. Nie odpowiadaj na nią.
 
 

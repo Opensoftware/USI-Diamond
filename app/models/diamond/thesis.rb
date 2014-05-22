@@ -32,6 +32,7 @@ class Diamond::Thesis < ActiveRecord::Base
     end
     state :assigned do
       event :archive, :transitions_to => :archived
+      event :revert_to_open, :transitions_to => :open
     end
     state :denied
     state :archived
@@ -75,7 +76,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :by_status, ->(s) { where(:state => s) }
   scope :by_department, ->(d) { where(:department_id => d) }
   scope :visible, -> { where(:state => [:open, :archived, :assigned]) }
-  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :archived, :assigned], s) }
+  scope :for_supervisor, ->(s) { where("state IN (?) OR supervisor_id = ?", [:open, :archived, :assigned, :denied], s) }
   scope :recently_accepted, -> { where(:state => :open) }
   scope :recently_updated, -> { order("updated_at DESC") }
   scope :recently_created, -> { newest }

@@ -17,7 +17,7 @@ class Diamond::ThesesController < DiamondController
 
   helper_method :enrolled?
 
-  authorize_resource :except => [:index, :accept, :collection_update]
+  authorize_resource :except => [:index, :accept, :revert_to_open, :collection_update]
   skip_authorization_check :only => [:index]
 
   def index
@@ -157,6 +157,24 @@ class Diamond::ThesesController < DiamondController
     if @thesis.can_accept?
       @thesis.accept!
       Diamond::ThesesMailer.accept_thesis(current_user.id, @thesis.id).deliver
+    end
+
+    respond_with @thesis do |f|
+      f.json do
+        @action_performed = true
+        render :layout => false
+      end
+    end
+  end
+
+  def revert_to_open
+    @thesis = Diamond::Thesis.include_peripherals.find(params[:id])
+    authorize! :update, @thesis
+
+    if @thesis.can_revert_to_open?
+      @thesis.revert_to_open!
+      @thesis.enrollments.destroy_all
+      Diamond::ThesesMailer.revert_to_open_thesis(current_user.id, @thesis.id).deliver
     end
 
     respond_with @thesis do |f|

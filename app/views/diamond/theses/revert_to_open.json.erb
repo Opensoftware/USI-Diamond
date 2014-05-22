@@ -1,0 +1,2 @@
+<% res = ''; with_format(:html) { res = (params[:status].present? && params[:status] != @thesis.current_state.to_s ? '' : render(:partial => "diamond/common/thesis_record", :locals => {thesis_record: @thesis})) } %>
+<%= raw( {:success => @action_performed, :objects => {@thesis.id => res } }.to_json) %>

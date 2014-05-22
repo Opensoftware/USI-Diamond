@@ -4,6 +4,7 @@ Diamond::Engine.routes.draw do
   resources :theses do
     member do
       patch :accept
+      patch :revert_to_open
     end
     resources :thesis_enrollments do
       member do

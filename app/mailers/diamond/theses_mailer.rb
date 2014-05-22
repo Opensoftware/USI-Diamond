@@ -41,6 +41,13 @@ class Diamond::ThesesMailer < ActionMailer::Base
       :subject => "#{Settings.app_name} - #{I18n.t(:mail_subject_thesis_accepted)}")
   end
 
+  def revert_to_open_thesis(admin_id, thesis_id)
+    @admin = User.where(id: admin_id).first.try(:verifable)
+    @thesis = Diamond::Thesis.where(id: thesis_id).first
+    mail(:to => @thesis.supervisor.user.email,
+      :subject => "#{Settings.app_name} - #{I18n.t(:mail_subject_thesis_reverted)}")
+  end
+
   def reject_thesis(admin_id, thesis_id)
     @admin = User.where(id: admin_id).first.try(:verifable)
     @thesis = Diamond::Thesis.where(id: thesis_id).first
