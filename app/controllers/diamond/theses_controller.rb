@@ -258,9 +258,15 @@ class Diamond::ThesesController < DiamondController
 
   def new_thesis_preload
     2.times { @thesis.enrollments.build }
-    unless current_user.verifable.department.blank?
+    if current_user.verifable.department.present?
       @courses = current_user.verifable.department.faculty.courses
-      .includes(:translations).load.in_groups_of(2, false)
+    elsif can?(:manage, Diamond::Thesis) && current_user.verifable.academy_unit_id.present?
+      if current_user.verifable.academy_unit.kind_of_faculty?
+        @courses = current_user.verifable.academy_unit.courses
+      end
+    end
+    if @courses
+      @courses = @courses.includes(:translations).load.in_groups_of(4, false)
     end
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
