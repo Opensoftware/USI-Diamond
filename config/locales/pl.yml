@@ -4,6 +4,10 @@ pl:
       zero: 0 dni
       one: 1 dzień
       other: "%{count} dni"
+    thesis_proposed:
+      zero: 0 zgłoszonych
+      one: 1 zgłoszona
+      other: "%{count} zgłoszonych"
     thesis_accepted:
       zero: 0 zaakceptowanych
       one: 1 zaakceptowany
@@ -58,10 +62,12 @@ pl:
   label_status_denied: Wyłączone z obiegu
   label_thesis_plural: Tematy prac
   label_thesis_plural_official: Prace dyplomowe
+  label_thesis_plural_department: Tematy prac w katedrze
   label_thesis_plural_short: Tematy
   label_thesis_reports_to: Zgłasza tematy do katedry
   label_thesis_added: Dodano temat pracy %{title}
   label_thesis_added_count: "%{current}/%{max}: dodano temat pracy %{title}"
+  label_thesis_proposed_count: Zgłoszonych
   label_thesis_new_plural: Dodaj tematy
   label_thesis_new_singular: Nowy temat pracy
   label_thesis_singular: Temat pracy
