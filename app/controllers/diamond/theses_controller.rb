@@ -18,6 +18,7 @@ class Diamond::ThesesController < DiamondController
   helper_method :enrolled?
 
   authorize_resource :except => [:index, :accept, :collection_update]
+  skip_authorization_check :only => [:index]
 
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
