@@ -17,7 +17,7 @@ class Diamond::ThesesController < DiamondController
 
   helper_method :enrolled?
 
-  authorize_resource :except => [:index, :accept, :revert_to_open, :collection_update]
+  authorize_resource :except => [:index, :accept, :revert_to_open, :collection_update, :change_history]
   skip_authorization_check :only => [:index]
 
   def index
@@ -183,6 +183,13 @@ class Diamond::ThesesController < DiamondController
         render :layout => false
       end
     end
+  end
+
+  def change_history
+    @thesis = Diamond::Thesis.find(params[:id])
+    authorize! :read, @thesis
+
+
   end
 
   def collection_update

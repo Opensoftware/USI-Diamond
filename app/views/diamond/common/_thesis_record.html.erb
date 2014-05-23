@@ -131,7 +131,7 @@
             <% end %>
           <% end %>
           <div class="col-md-3">
-            <%= button_tag :class => 'button-small button-small-navy', :type => :button do %>
+            <%= link_to diamond.change_history_thesis_path(thesis_record), :class => 'button-small button-small-navy button-state-history has-tooltip', 'data-toggle'=>"tooltip", 'data-placement'=>"top", :title => t(:label_state_change_history) do %>
               <%= content_tag :i, nil, :class => 'icon icon-white icon-callendar' %>
             <% end %>
           </div>

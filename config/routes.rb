@@ -5,6 +5,7 @@ Diamond::Engine.routes.draw do
     member do
       patch :accept
       patch :revert_to_open
+      get :change_history
     end
     resources :thesis_enrollments do
       member do
