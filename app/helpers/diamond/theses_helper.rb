@@ -68,6 +68,8 @@ module Diamond::ThesesHelper
       @can_enrollments[enrollment] &&= !current_user.verifable.enrolled?
       # may enroll if not yet enrolled for given thesis
       @can_enrollments[enrollment] &&= !current_user.verifable.enrolled_for_thesis?(@thesis)
+    elsif current_user.try(:employee?)
+      @can_enrollments[enrollment] &&= (can?(:manage_department, @thesis) || can?(:manage_own, @thesis))
     end
     @can_enrollments[enrollment]
   end
