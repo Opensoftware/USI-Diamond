@@ -41,7 +41,7 @@ class Diamond::ThesesController < DiamondController
 
   def new
     @thesis = Diamond::Thesis.new
-    new_thesis_preload
+    thesis_preload
     if @courses.blank? && cannot?(:manage, Diamond::Thesis)
       flash[:error] = t(:error_employee_department_blank,
         employee: current_user.verifable.surname_name)
@@ -103,7 +103,7 @@ class Diamond::ThesesController < DiamondController
           redirect_to thesis_path(@thesis), :flash => {:notice => t(:label_thesis_added, title: @thesis.title)}
         else
           flash.now[:error] = msg
-          new_thesis_preload
+          thesis_preload
           render action: :new
         end
       end
@@ -129,12 +129,8 @@ class Diamond::ThesesController < DiamondController
 
   def edit
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
-    if @thesis.enrollments.blank? && can?(:manage_own, @thesis)
-      2.times do
-        @thesis.enrollments.build
-      end
-    end
-    @courses = current_user.verifable.academy_unit.courses.includes(:translations).load.in_groups_of(4, false)
+    authorize! :update, @thesis
+    thesis_preload
     @thesis_types = Diamond::ThesisType.includes(:translations).load
   end
 
@@ -282,7 +278,7 @@ class Diamond::ThesesController < DiamondController
     @thesis.current_state >= :assigned && @thesis.enrollments.accepted.length >= @thesis.student_amount
   end
 
-  def new_thesis_preload
+  def thesis_preload
     2.times { @thesis.enrollments.build }
     if current_user.verifable.department.present?
       @courses = current_user.verifable.department.faculty.courses

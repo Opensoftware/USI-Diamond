@@ -4,7 +4,7 @@
     <%= javascript_include_tag 'student_autocomplete' %>
   <% end %>
 <% end %>
-<% if can?(:manage_own, @thesis) %>
+<% if can?(:manage_own, @thesis) || can?(:manage_department, @thesis) %>
   <% content_for :right_column do %>
     <div class="row">
       <div class="col-md-9"></div>
