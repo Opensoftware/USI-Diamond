@@ -82,7 +82,9 @@ class Diamond::ThesesController < DiamondController
           :supervisor => @thesis.supervisor.surname_name)
       end
     else
-      @thesis.accept_enrollments! if can?(:manage_department, Diamond::Thesis)
+      if can?(:manage_department, Diamond::Thesis)
+        @thesis.accept_enrollments!
+      end
     end
     respond_to do |f|
       f.json do
@@ -266,7 +268,8 @@ class Diamond::ThesesController < DiamondController
   end
 
   def update_status
-    if @thesis.enrollments.any? && can?(:manage_own, @thesis)
+    if @thesis.enrollments.any? && (can?(:manage_own, @thesis) ||
+          can?(:manage_department, @thesis))
       @thesis.enrollments.each do |enrollment|
         enrollment.accept! if enrollment.can_accept?
       end
