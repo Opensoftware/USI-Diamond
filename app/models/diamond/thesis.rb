@@ -54,6 +54,7 @@ class Diamond::Thesis < ActiveRecord::Base
   belongs_to :supervisor, :class_name => "Employee"
   belongs_to :thesis_type
   belongs_to :annual
+  belongs_to :department
 
   has_many :course_thesis, :class_name => "Diamond::CourseThesis", :dependent => :destroy
   has_many :courses, :through => :course_thesis

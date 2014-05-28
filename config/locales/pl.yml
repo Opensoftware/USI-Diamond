@@ -80,6 +80,7 @@ pl:
   label_thesis_student_amount: Liczba studentów
   label_thesis_desc: Opis pracy
   label_thesis_desc_enter: Podaj opis pracy
+  label_thesis_list: Lista prac dyplomowych
   label_thesis_list_move: Przejdź do listy tematów
   label_thesis_browse_yours: Przeglądaj swoje tematy
   label_thesis_browse_field_of_study: Przeglądaj tematy Twojego kierunku
@@ -92,6 +93,7 @@ pl:
   label_thesis_limit_exceeded_manage_own: W roczniku %{annual} dodałeś(aś) już maksymalną liczbę prac (%{count})
   label_thesis_limit_exceeded_manage_department: Wybrany promotor w roczniku %{annual} ma już dodaną maksymalną liczbę prac (%{count})
   label_thesis_limit_exceeded_manage: Wybrany promotor w roczniku %{annual} ma już dodaną maksymalną liczbę prac (%{count})
+  label_thesis_degree_candidate: Dyplomant
   label_thesis_accept: Masz %{days} na akceptację
   label_thesis_enroll: Zapisz się do tego tematu
   label_thesis_enroll_first: Zapisz się na temat pracy dyplomowej

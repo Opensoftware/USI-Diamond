@@ -36,6 +36,17 @@ class Diamond::ThesesController < DiamondController
 
     respond_with @theses do |f|
       f.js { render :layout => false }
+      f.pdf do
+        cache_key = fragment_cache_key([current_annual.name, I18n.locale, @theses].flatten)
+        data = Rails.cache.fetch(cache_key) do
+          pdf = Pdf::ThesesList.new(self, @theses)
+          data = pdf.to_pdf
+          Rails.cache.write(cache_key, data)
+          data
+        end
+
+        send_data(data, :filename => "#{t(:label_thesis_list)}.pdf", :type => 'application/pdf', :disposition => "inline")
+      end
     end
   end
 
@@ -186,8 +197,6 @@ class Diamond::ThesesController < DiamondController
   def change_history
     @thesis = Diamond::Thesis.find(params[:id])
     authorize! :read, @thesis
-
-
   end
 
   def collection_update
