@@ -1,8 +1,7 @@
 class Pdf::PdfStub < Prawn::Document
 
-  def initialize(kontroller, prawn_opts = {})
+  def initialize(prawn_opts = {})
     super({:top_margin => 50, :page_size => 'A4'}.merge(prawn_opts))
-    @kontroller = kontroller
   end
 
   def to_pdf

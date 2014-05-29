@@ -1,7 +1,7 @@
 class Pdf::ThesesList < Pdf::PdfStub
 
-  def initialize(kontroller, theses)
-    super(kontroller, :page_layout => :landscape)
+  def initialize(theses)
+    super(:page_layout => :landscape)
 
     @theses = theses
   end

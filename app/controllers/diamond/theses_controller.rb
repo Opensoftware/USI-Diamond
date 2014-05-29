@@ -22,9 +22,7 @@ class Diamond::ThesesController < DiamondController
 
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
-    .include_peripherals
-    .order("lower(title) ASC")
-    .paginate(:page => params[:page].to_i < 1 ? 1 : params[:page], :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
+      .order("lower(title) ASC")
     if can?(:manage_department, Diamond::Thesis)
     elsif can?(:manage_own, Diamond::Thesis)
       @theses = @theses.for_supervisor(current_user.verifable_id)
@@ -34,18 +32,28 @@ class Diamond::ThesesController < DiamondController
 
     @filters = DEFAULT_FILTERS
 
+    if exportable_format?
+      @cache_key = fragment_cache_key([current_annual.name, I18n.locale,
+          @theses, request.format].flatten)
+      @theses = @theses.include_peripherals.includes(:accepted_students,
+          :department => :translations)
+    else
+      @theses = @theses.include_peripherals.paginate(:page => params[:page].to_i < 1 ? 1 : params[:page],
+        :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
+    end
     respond_with @theses do |f|
       f.js { render :layout => false }
-      f.pdf do
-        cache_key = fragment_cache_key([current_annual.name, I18n.locale, @theses].flatten)
-        data = Rails.cache.fetch(cache_key) do
-          pdf = Pdf::ThesesList.new(self, @theses)
-          data = pdf.to_pdf
-          Rails.cache.write(cache_key, data)
-          data
-        end
+      [:xlsx, :pdf].each do |format|
+        f.send(format) do
+          data = Rails.cache.fetch(@cache_key) do
+            file = format.to_s.classify.constantize::ThesesList.new(@theses)
+            data = file.send("to_#{format}")
+            Rails.cache.write(@cache_key, data)
+            data
+          end
 
-        send_data(data, :filename => "#{t(:label_thesis_list)}.pdf", :type => 'application/pdf', :disposition => "inline")
+          send_data(data, :filename => "#{t(:label_thesis_list)}.#{format}", :type => "application/#{format}", :disposition => "inline")
+        end
       end
     end
   end
