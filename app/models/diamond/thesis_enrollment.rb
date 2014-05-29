@@ -15,7 +15,7 @@ class Diamond::ThesisEnrollment < ActiveRecord::Base
   end
 
   belongs_to :enrollment_type, :class_name => "Diamond::ThesisEnrollmentType"
-  belongs_to :thesis, :class_name => "Diamond::Thesis"
+  belongs_to :thesis, :class_name => "Diamond::Thesis", touch: true
   belongs_to :student, :class_name => "Student"
   has_many :messages, -> { Diamond::ThesisMessage.for_enrollment },
     :class_name => 'Diamond::ThesisMessage',
