@@ -12,6 +12,10 @@ pl:
       zero: 0 zaakceptowanych
       one: 1 zaakceptowany
       other: "%{count} zaakceptowanych"
+    thesis_not_accepted:
+      zero: 0 niezaakceptowanych
+      one: 1 niezaakceptowany
+      other: "%{count} niezaakceptowanych"
     thesis_chosen:
       zero: 0 wybranych
       one: 1 wybrany
