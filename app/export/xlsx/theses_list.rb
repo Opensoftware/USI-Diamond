@@ -21,7 +21,8 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
         thesis.accepted_students.collect{|s| s.surname_name }.join(", ").to_s,
         I18n.t("label_status_#{thesis.state}").to_s]
     end
-    sheet.auto_filter = "A1:F#{@theses.length}"
+
+    sheet.add_table "A1:F#{@theses.length}", :name => I18n.t(:label_thesis_list)
     sheet.column_widths 40
 
   end
