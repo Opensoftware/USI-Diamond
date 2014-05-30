@@ -60,7 +60,7 @@
     <%= f.hidden_field :department_id, :value => current_user.verifable.department_id %>
   </div>
 <% end %>
-<% if (can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis)) && @thesis.current_state < :assigned %>
+<% if (can?(:manage_own, Diamond::Thesis) && @thesis.current_state < :assigned) || can?(:manage_department, Diamond::Thesis) %>
   <div class="enrollments">
     <%= f.fields_for :enrollments do |g| %>
       <div class="form-group extra-margin" style="<%= "display: none;" if (g.index+1) > @thesis.student_amount %>">
@@ -69,7 +69,7 @@
 
             <%= g.label :student_id, t(:label_student_singular) %>
             <div>
-              <%= g.text_field :student_id, :value => g.object.student.try(:surname_name), :class => "typeahead typeahead-student form-control", :autocomplete => :off, :placeholder => t(:label_student_provide_surname) %>
+              <%= g.text_field :student_id, {:value => g.object.student.try(:surname_name), :class => "typeahead typeahead-student form-control", :autocomplete => :off, :placeholder => t(:label_student_provide_surname)}.merge!(@thesis.current_state >= :assigned ? {:required => true }: {}) %>
               <%= g.hidden_field :student_id %>
             </div>
           </div>

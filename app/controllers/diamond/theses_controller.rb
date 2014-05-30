@@ -22,7 +22,7 @@ class Diamond::ThesesController < DiamondController
 
   def index
     @theses = apply_scopes(Diamond::Thesis, params)
-      .order("lower(title) ASC")
+    .order("lower(title) ASC")
     if can?(:manage_department, Diamond::Thesis)
     elsif can?(:manage_own, Diamond::Thesis)
       @theses = @theses.for_supervisor(current_user.verifable_id)
@@ -36,7 +36,7 @@ class Diamond::ThesesController < DiamondController
       @cache_key = fragment_cache_key([current_annual.name, I18n.locale,
           @theses, request.format].flatten)
       @theses = @theses.include_peripherals.includes(:accepted_students,
-          :department => :translations)
+        :department => :translations)
     else
       @theses = @theses.include_peripherals.paginate(:page => params[:page].to_i < 1 ? 1 : params[:page],
         :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
@@ -290,7 +290,8 @@ class Diamond::ThesesController < DiamondController
       @thesis.enrollments.each do |enrollment|
         enrollment.accept! if enrollment.can_accept?
       end
-      @thesis.assign! if @thesis.can_assign? && @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
+      @thesis.assign! if @thesis.can_assign? && @thesis.has_required_students? &&
+        @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
     end
   end
 
@@ -299,7 +300,7 @@ class Diamond::ThesesController < DiamondController
   end
 
   def thesis_preload
-    2.times { @thesis.enrollments.build }
+    2.times { @thesis.enrollments.build } if @thesis.current_state < :assigned
     if current_user.verifable.department.present?
       @courses = current_user.verifable.department.faculty.courses
     elsif can?(:manage, Diamond::Thesis) && current_user.verifable.academy_unit_id.present?
