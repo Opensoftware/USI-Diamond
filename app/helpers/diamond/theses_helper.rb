@@ -94,7 +94,7 @@ module Diamond::ThesesHelper
     @can_edit = {} unless defined?(@can_edit)
     return @can_edit[thesis] if @can_edit.has_key?(thesis)
     @can_edit[thesis] = thesis.new_record? ||
-      ((can?(:manage_own, thesis) && thesis.try(:current_state) < :open) ||
+      ((can?(:manage_own, thesis) && thesis.try(:current_state) < :assigned) ||
         (can?(:manage_department, thesis)))
   end
 

@@ -85,7 +85,10 @@ class Diamond::ThesesController < DiamondController
 
     if supervisor.present?
       if supervisor.thesis_limit_not_exceeded?
-        update_status if @thesis.save
+        if @thesis.save
+          accept_enrollments!
+          update_status!
+        end
       else
         supervisor.deny_remaining_theses!
       end
@@ -158,9 +161,9 @@ class Diamond::ThesesController < DiamondController
   def update
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
     authorize! :update, @thesis
-
     if @thesis.update(thesis_params)
-      update_status
+      accept_enrollments!
+      update_status!
       redirect_to thesis_path(@thesis)
     else
       render 'edit'
@@ -284,14 +287,24 @@ class Diamond::ThesesController < DiamondController
     ALLOWED_ACTIONS.include?(params[:perform_action].to_sym)
   end
 
-  def update_status
+  def accept_enrollments!
     if @thesis.enrollments.any? && (can?(:manage_own, @thesis) ||
           can?(:manage_department, @thesis))
       @thesis.enrollments.each do |enrollment|
         enrollment.accept! if enrollment.can_accept?
       end
-      @thesis.assign! if @thesis.can_assign? && @thesis.has_required_students? &&
+    end
+  end
+
+  def update_status!
+    # Some changes were made by thesis supervisor and thesis was in published
+    # state - need to revert its state to unaccepted
+    if can?(:manage_own, @thesis) && @thesis.previous_changes.present? &&
+        @thesis.current_state >= :open
+      @thesis.revert_to_unaccepted! if @thesis.can_revert_to_unaccepted?
+    elsif @thesis.can_assign? && @thesis.has_required_students? &&
         @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
+      @thesis.assign!
     end
   end
 

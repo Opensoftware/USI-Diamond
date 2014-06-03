@@ -29,6 +29,7 @@ class Diamond::Thesis < ActiveRecord::Base
       event :reject, :transitions_to => :rejected
       event :assign, :transitions_to => :assigned
       event :deny, :transitions_to => :denied
+      event :revert_to_unaccepted, :transitions_to => :unaccepted
     end
     state :assigned do
       event :archive, :transitions_to => :archived

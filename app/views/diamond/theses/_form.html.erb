@@ -1,6 +1,8 @@
 <% content_for :additional_javascripts do %>
-  <% if can?(:manage_department, Diamond::Thesis) %>
+  <% if can?(:manage_department, Diamond::Thesis) || can?(:manage_own, Diamond::Thesis) %>
     <%= javascript_include_tag 'student_autocomplete' %>
+  <% end %>
+  <% if can?(:manage_department, Diamond::Thesis) %>
     <%= javascript_include_tag 'supervisor_autocomplete' %>
   <% end %>
 <% end %>
