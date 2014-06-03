@@ -1,24 +1,24 @@
 class Pdf::ThesesList < Pdf::PdfStub
 
-  def initialize(theses)
+  def initialize(current_user, theses)
     super(:page_layout => :landscape)
 
     @theses = theses
   end
 
   protected
+  
   def pdf_content
 
     t = []
     t_header = [I18n.t(:label_thesis_singular), I18n.t(:label_department_singular),
       I18n.t(:label_field_of_study_plural), I18n.t(:label_supervisor_singular),
-      I18n.t(:label_thesis_degree_candidate), I18n.t(:label_status)]
+      I18n.t(:label_status)]
     t << t_header
     @theses.each do |thesis|
       t << [thesis.title, thesis.department.name,
         thesis.courses.collect{|c| c.name }.join(", "),
         thesis.supervisor.full_name,
-        thesis.accepted_students.collect{|s| s.surname_name }.join(", "),
         I18n.t("label_status_#{thesis.state}")]
     end
 

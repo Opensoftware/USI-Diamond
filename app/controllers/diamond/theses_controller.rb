@@ -35,8 +35,9 @@ class Diamond::ThesesController < DiamondController
     if exportable_format?
       @cache_key = fragment_cache_key([current_annual.name, I18n.locale,
           @theses, request.format].flatten)
-      @theses = @theses.include_peripherals.includes(:accepted_students,
-        :department => :translations)
+      @theses = @theses.include_peripherals.includes(:department => :translations,
+        :accepted_students => [:studies => [:course => :translations,
+            :study_type => :translations, :study_degree => :translations]])
     else
       @theses = @theses.include_peripherals.paginate(:page => params[:page].to_i < 1 ? 1 : params[:page],
         :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
@@ -46,7 +47,7 @@ class Diamond::ThesesController < DiamondController
       [:xlsx, :pdf].each do |format|
         f.send(format) do
           data = Rails.cache.fetch(@cache_key) do
-            file = format.to_s.classify.constantize::ThesesList.new(@theses)
+            file = format.to_s.classify.constantize::ThesesList.new(current_user, @theses)
             data = file.send("to_#{format}")
             Rails.cache.write(@cache_key, data)
             data
