@@ -19,6 +19,7 @@ class Diamond::ThesisEnrollmentsController < DiamondController
       @enrollment.save
       if can?(:manage, Diamond::ThesisEnrollment)
         @enrollment.accept!
+        Diamond::ThesesMailer.enrollment_accepted(@enrollment.id).deliver
         if @thesis.can_assign? && @thesis.has_required_students? &&
             (can?(:manage_department, @thesis) ||
               (@thesis.current_state >= :open && can?(:manage_own, @thesis)))
