@@ -174,7 +174,9 @@ class Diamond::ThesesController < DiamondController
     @thesis = Diamond::Thesis.include_peripherals.find(params[:id])
     authorize! :update, @thesis
 
-    if @thesis.can_accept?
+    if @thesis.has_required_students?
+      @thesis.assign! if @thesis.can_assign?
+    elsif @thesis.can_accept?
       @thesis.accept!
       Diamond::ThesesMailer.accept_thesis(current_user.id, @thesis.id).deliver
     end
