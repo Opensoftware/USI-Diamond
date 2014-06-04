@@ -1,5 +1,7 @@
 class Xlsx::ThesesList < Xlsx::XlsxStub
 
+  include Xlsx::ThesesHelper
+
   attr_reader :current_user
 
   def initialize(current_user, theses)
@@ -32,6 +34,7 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
   def header
     if current_user.blank? || current_user.try(:student?)
       [I18n.t(:label_thesis_singular), I18n.t(:label_filter_thesis_type),
+        I18n.t(:label_filter_annual),
         I18n.t(:label_department_singular),
         I18n.t(:label_field_of_study_plural),
         I18n.t(:label_title), I18n.t(:label_supervisor_singular),
@@ -42,6 +45,7 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
         I18n.t(:label_index_number),
         I18n.t(:label_thesis_singular),
         I18n.t(:label_filter_thesis_type),
+        I18n.t(:label_filter_annual),
         I18n.t(:label_field_of_study_singular),
         I18n.t(:label_study_degree),
         I18n.t(:label_studies_type),
@@ -56,8 +60,9 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
   def row(thesis)
     if current_user.blank? || current_user.try(:student?)
       [thesis.title.to_s, thesis.thesis_type.name,
-        thesis.courses.collect{|c| c.name }.join(", ").to_s,
+        thesis.annual.name,
         thesis.department.name.to_s,
+        thesis.courses.collect{|c| c.name }.join(", ").to_s,
         thesis.supervisor.employee_title.name,
         thesis.supervisor.surname_name,
         I18n.t("label_status_#{thesis.state}").to_s]
@@ -66,7 +71,9 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
         collection_to_string( thesis.accepted_students.collect {|s| s.surname_name }),
         collection_to_string( thesis.accepted_students.collect {|s| s.index_number }),
         thesis.title.to_s,
-        thesis.thesis_type.name]
+        thesis.thesis_type.name,
+        thesis.annual.name
+      ]
       r += [:course, :study_degree, :study_type].collect do |param|
         if thesis.accepted_students.present?
           collection_to_string(thesis.accepted_students.collect { |s|
@@ -85,7 +92,4 @@ class Xlsx::ThesesList < Xlsx::XlsxStub
     end
   end
 
-  def collection_to_string(collection)
-    collection.join(", ").to_s
-  end
 end

@@ -33,8 +33,7 @@ class Diamond::ThesesController < DiamondController
     @filters = DEFAULT_FILTERS
 
     if exportable_format?
-      @cache_key = fragment_cache_key([current_annual.name, I18n.locale,
-          (current_user.present? ? current_user.id : false), @theses, request.format].flatten)
+      @cache_key = fragment_cache_key_for(@theses)
       @theses = @theses.include_peripherals.includes(:department => :translations,
         :accepted_students => [:studies => [:course => :translations,
             :study_type => :translations, :study_degree => :translations]])

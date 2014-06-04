@@ -34,6 +34,19 @@ pl:
   label_accept_revert: Cofnij do statusu opublikowana
   label_state_change_history: Historia zmian statusów
 
+  label_report_export_supervisors_theses_of_department: Eksportuj listę tematów promotorów katedry
+  label_report_export_supervisors_theses_of_faculty: Eksportuj listę tematów promotorów wydziału
+  label_report_export_unassigned_students: Eksportuj listę niezapisanych studentów
+  label_report_export_department_theses: Eksportuj listę tematów katedry
+  label_report_export_faculty_theses: Eksportuj listę tematów wydziału
+  label_report_export_theses: Eksportuj listę tematów
+  label_report_export_theses_mine: Eksportuj moją listę tematów
+  label_report_export_supervisors_theses_of_department_name: Lista tematów promotorów katedry
+  label_report_export_supervisors_theses_of_faculty_name: Lista tematów promotorów wydziału
+  label_report_export_department_theses_name: Lista tematów katedry
+  label_report_export_supervisor_theses_name: Moja lista tematów
+  label_report_export_faculty_theses_name: Lista tematów wydziału
+  label_report_export_unassigned_students_name: Lista niezapisanych studentów
   label_field_of_study_singular: Kierunek
   label_field_of_study_plural: Kierunki
   label_filter_field_of_study: Kierunek
