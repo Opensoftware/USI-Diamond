@@ -29,7 +29,9 @@ module Diamond::ThesesHelper
 
   def supervisor_filter_content
     return @employee_filter if defined?(@employee_filter)
-    @employee_filter = [[t(:label_all), nil]] | Employee.having_theses.sort.collect {|a| [a.surname_name_title, a.id]}
+    @employee_filter = [[t(:label_all), nil]] | Employee
+    .includes(:employee_title)
+    .having_theses.sort.collect {|a| [a.surname_name_title, a.id]}
   end
 
   def thesis_type_filter_content
