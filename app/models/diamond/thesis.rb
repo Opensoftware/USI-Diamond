@@ -85,7 +85,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :recently_created, -> { newest }
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
   scope :assigned, -> { where(:state => [:assigned, :archived]) }
-  scope :not_assigned, -> { where("state NOT IN (?)", [:unaccepted, :open, :rejected]) }
+  scope :not_assigned, -> { where("state IN (?)", [:unaccepted, :open, :rejected, :denied]) }
   scope :newest_enrollments, -> { [] }
   scope :supervisor_newest_enrollments, ->(employee) { Diamond::Thesis.find_by_sql("SELECT a.maxcreated, b.*
 FROM (

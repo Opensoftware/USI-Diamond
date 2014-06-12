@@ -72,6 +72,7 @@ module Diamond::ThesesHelper
       @can_enrollments[enrollment] &&= !current_user.verifable.enrolled_for_thesis?(@thesis)
     elsif current_user.try(:employee?)
       @can_enrollments[enrollment] &&= (can?(:manage_department, @thesis) || can?(:manage_own, @thesis))
+      @can_enrollments[enrollment] &&= @thesis.supervisor.thesis_limit_not_exceeded?
     end
     @can_enrollments[enrollment]
   end

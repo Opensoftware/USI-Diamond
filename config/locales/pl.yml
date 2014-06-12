@@ -117,6 +117,7 @@ pl:
   label_thesis_enroll_by_employee: Przypisz studenta do tego tematu
   label_thesis_enroll_login_first: Zaloguj się, jeżeli chcesz zapisać się na ten temat
   label_thesis_enrollment: Tylko promotor pracy lub koordynator może przypisać studenta do tematu
+  label_thesis_enrollment_limit_exceeded: Maksymalna liczba tematów prac promotora została przekroczona w roku akad. %{annual}
   label_thesis_enrolled: Wybrałeś(aś) już temat pracy dyplomowej
   label_thesis_enrolled_for_thesis: Zapisałeś(aś) się już do tego tematu
   label_thesis_enrolled_by_student: Udało Ci się zapisać na ten temat

@@ -183,8 +183,12 @@
                   <%=t :label_thesis_enrolled %>
                 <% elsif defined?(@student) %>
                   <%= t(:label_thesis_enrolled_by_employee, :student => enrollment.student.surname_name) %>
-                <% elsif current_user.employee? && current_user.verifable_id != @thesis.supervisor_id %>
-                  <%=t :label_thesis_enrollment%>
+                <% elsif current_user.employee? %>
+                  <% if current_user.verifable_id != @thesis.supervisor_id %>
+                    <%=t :label_thesis_enrollment%>
+                  <% elsif !@thesis.supervisor.thesis_limit_not_exceeded? %>
+                    <%=t :label_thesis_enrollment_limit_exceeded, annual: current_annual.name %>
+                  <% end %>
                 <% else %>
                   <%= t(:label_thesis_enrolled_for_thesis) %>
                 <% end %>
