@@ -52,7 +52,7 @@ class Diamond::Thesis < ActiveRecord::Base
   translates :title, :description
   globalize_accessors :locales => I18n.available_locales
 
-  belongs_to :supervisor, :class_name => "Employee"
+  belongs_to :supervisor, :class_name => "Employee", touch: true
   belongs_to :thesis_type
   belongs_to :annual
   belongs_to :department
@@ -84,7 +84,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :recently_updated, -> { order("updated_at DESC") }
   scope :recently_created, -> { newest }
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
-  scope :assigned, -> { where(:state => [:assigned, :archived]) }
+  scope :assigned, -> { where(:state => [:assigned]) }
   scope :not_assigned, -> { where("state IN (?)", [:unaccepted, :open, :rejected, :denied]) }
   scope :newest_enrollments, -> { [] }
   scope :supervisor_newest_enrollments, ->(employee) { Diamond::Thesis.find_by_sql("SELECT a.maxcreated, b.*

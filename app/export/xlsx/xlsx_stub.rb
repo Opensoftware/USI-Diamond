@@ -25,6 +25,7 @@ class Xlsx::XlsxStub
   def init_styles(wb)
     @styles = {}
 
+    @styles[:bold] = wb.styles.add_style :b => true
     @styles[:section_header] = wb.styles.add_style :alignment => { :horizontal => :left, :vertical => :top, :wrap_text => true}, :b => true
     @styles[:header] = wb.styles.add_style :alignment => { :horizontal => :center }, :b => true
     @styles[:font_10] = wb.styles.add_style :sz => 10
@@ -33,5 +34,6 @@ class Xlsx::XlsxStub
     @styles[:wrap_red_text_and_border] = wb.styles.add_style :alignment => { :horizontal => :left, :vertical => :top, :wrap_text => true}, :border => { :style => :thin, :color => "00" }, :bg_color => "ff0000"
     @styles[:table_section_header] = wb.styles.add_style :alignment => { :horizontal => :left, :vertical => :top, :wrap_text => true}, :border => { :style => :thin, :color => "00" }, :bg_color => "ededed"
     @styles[:thead] = wb.styles.add_style :border => { :style => :thin, :color => "00" }, :bg_color => "bfbfbf"
+    @styles[:header_vertical] = wb.styles.add_style :alignment => {:textRotation => 90}, :b => true
   end
 end

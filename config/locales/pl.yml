@@ -39,6 +39,8 @@ pl:
   label_report_export_unassigned_students: Eksportuj listę niezapisanych studentów
   label_report_export_department_theses: Eksportuj listę tematów katedry
   label_report_export_faculty_theses: Eksportuj listę tematów wydziału
+  label_report_export_department_theses_stats: Eksportuj statystyki promotorów katedry
+  label_report_export_faculty_theses_stats: Eksportuj statystyki promotorów wydziału
   label_report_export_theses: Eksportuj listę tematów
   label_report_export_theses_mine: Eksportuj moją listę tematów
   label_report_export_supervisors_theses_of_department_name: Lista tematów promotorów katedry
@@ -105,6 +107,9 @@ pl:
   label_thesis_title_manage_own: Twoje tematy
   label_thesis_title_manage_department: Tematy katedry
   label_thesis_title_manage: Tematy wydziału
+  label_thesis_in_total: Ogółem
+  label_thesis_accepted: Zaakceptowanych
+  label_thesis_assigned: Przypisanych
   label_thesis_not_found: Nie znaleziono żadnych tematów dla zadanych kryteriów.
   label_thesis_found: Znaleziono %{x} wyników dla zadanych kryteriów. Strona %{current_page} z %{total_pages}
   label_thesis_limit_exceeded_manage_own: W roczniku %{annual} dodałeś(aś) już maksymalną liczbę prac (%{count})

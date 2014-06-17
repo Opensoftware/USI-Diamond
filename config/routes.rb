@@ -25,6 +25,8 @@ Diamond::Engine.routes.draw do
         get :supervisor_theses
         get :department_theses
         get :faculty_theses
+        get :department_theses_stats, to: :department_theses_statistics
+        get :faculty_theses_stats, to: :faculty_theses_statistics
         get :supervisors_theses_of_department
         get :supervisors_theses_of_faculty
       end

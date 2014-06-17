@@ -57,6 +57,21 @@ class Diamond::Reports::ThesesController < DiamondController
     theses
   end
 
+  def faculty_theses_statistics
+    authorize! :manage, :theses_reports
+    @supervisors = Employee
+    .where("department_id IS NOT NULL")
+    .includes(:employee_title)
+    theses_statistics
+  end
+
+  def department_theses_statistics
+    authorize! :read, :theses_reports
+    @supervisors = Employee.where(department_id: current_user.verifable.department_id)
+    .includes(:employee_title)
+    theses_statistics
+  end
+
   private
 
   def supervisors_theses(scope)
@@ -84,6 +99,24 @@ class Diamond::Reports::ThesesController < DiamondController
         data = Rails.cache.fetch(cache_key) do
           file = Xlsx::const_get("#{employee_type.camelize(:upper)}ThesesList")
           .new(current_user, @theses)
+          data = file.to_xlsx
+          Rails.cache.write(cache_key, data)
+          data
+        end
+        send_data(data, :filename => "#{t("label_report_export_#{employee_type}_theses_name")}.xlsx", :type => "application/xlsx", :disposition => "inline")
+      end
+    end
+  end
+
+  def theses_statistics
+    respond_to do |format|
+      format.xlsx do
+
+        cache_key = fragment_cache_key_for(@supervisors)
+        employee_type = params[:action].split("_").first
+        data = Rails.cache.fetch(cache_key) do
+          file = Xlsx::const_get("#{employee_type.camelize(:upper)}ThesesStatistics")
+          .new(@supervisors)
           data = file.to_xlsx
           Rails.cache.write(cache_key, data)
           data
