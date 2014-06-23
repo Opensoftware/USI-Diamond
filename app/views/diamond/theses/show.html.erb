@@ -157,7 +157,7 @@
       <div class="col-md-12">
         <%= f.label :student_id, t(:label_student_singular) %>
         <div>
-          <%= f.text_field :student_id, {:value =>  current_user.try(:student?) && (can_enroll?(enrollment) || current_user.student.has_enrollment?(enrollment)) ? current_user.student.surname_name : enrollment.student.try(:surname_name), :class => "typeahead typeahead-student form-control #{"force-visible" if disableable?(enrollment)}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(disableable?(enrollment) ? {:disabled => true} : {}) %>
+          <%= f.text_field :student_id, {:value =>  current_user.try(:student?) && (can_enroll?(enrollment) || current_user.student.has_thesis_enrollment?(enrollment)) ? current_user.student.surname_name : enrollment.student.try(:surname_name), :class => "typeahead typeahead-student form-control #{"force-visible" if disableable?(enrollment)}", :autocomplete => :off, :placeholder => t(:label_student_personal_data)}.merge(disableable?(enrollment) ? {:disabled => true} : {}) %>
           <%= f.hidden_field :student_id, {:value => can_enroll?(enrollment) && current_user.try(:student?) ? current_user.student.surname_name : nil} %>
         </div>
       </div>
