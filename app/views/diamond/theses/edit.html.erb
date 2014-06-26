@@ -24,7 +24,7 @@
 <% end %>
 
 
-<%= form_for @thesis, :builder => Diamond::DisableableFormBuilder, role: "form", :html => {:class => "new-thesis"}  do |f| %>
+<%= form_for @thesis, :builder => DisableableFormBuilder, role: "form", :html => {:class => "new-thesis"}  do |f| %>
     <%= render :partial => "form", :locals => {:f => f} %>
 <% end %>
 
