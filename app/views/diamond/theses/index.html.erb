@@ -88,8 +88,8 @@
 </div>
 
 <% if @theses.present? %>
-  <%= form_tag url_for( :action => params[:action], :controller => params[:controller]), :class => 'theses-form' do %>
-    <div class="theses-list">
+  <%= form_tag url_for( :action => params[:action], :controller => params[:controller]), :class => 'elements-form theses-form' do %>
+    <div class="theses-list elements-list">
       <%= render :partial => 'diamond/common/thesis_record', :collection => @theses %>
     </div>
   <% end %>
