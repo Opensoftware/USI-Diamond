@@ -31,12 +31,3 @@ $(document).ready(function() {
   });
 
 });
-
-$.widget( "core.per_page_paginator", $.core.loader, {
-
-  before_state_changed: function(ctxt, e) {
-    $("input[name='per_page']", ctxt).val($(e.currentTarget).html());
-    $("input[name='page']", ctxt).val(1);
-  }
-
-});
