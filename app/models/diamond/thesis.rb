@@ -48,6 +48,7 @@ class Diamond::Thesis < ActiveRecord::Base
   validates_presence_of :department_id
 
   after_create :create_initial_audit
+  after_save :touch_enrollments
 
   translates :title, :description
   globalize_accessors :locales => I18n.available_locales
@@ -138,6 +139,10 @@ LIMIT 5") }
   def create_initial_audit
     Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => :unaccepted, :employee_id => User.current.try(:verifable_id))
     true
+  end
+
+  def touch_enrollments
+    enrollments.update_all(updated_at: Time.now)
   end
 
 end
