@@ -146,10 +146,10 @@ pl:
   mail_subject_thesis_accepted: Zaakceptowana praca dyplomowa
   mail_subject_thesis_reverted: Praca dyplomowa cofnięta z powrotem do puli wyboru dla studentów
   mail_subject_thesis_rejected: Odrzucona praca dyplomowa
-  mail_body_new_enrollment: "Student %{student} zapisał(a) się na temat pracy dyplomowej %{thesis_title}. Masz 5 dni na akceptację tego zgłoszenia, a jeżeli tego nie zrobisz, to zostanie ono automatycznie odrzucone. "
+  mail_body_new_enrollment: "Student %{student} zapisał(a) się na temat pracy dyplomowej %{thesis_title}. Masz 5 dni na akceptację tego zgłoszenia. Jeżeli tego nie zrobisz, to zostanie ono automatycznie odrzucone. "
   mail_body_enrollment_rejected: Promotor %{supervisor} odrzucił Twoją prośbę o przypisanie do tematu %{thesis_title}.
   mail_body_enrollment_rejected_timeout: System automatycznie odrzucił Twoją prośbę o przypisanie do tematu %{thesis_title}, ponieważ od czasu zgłoszenia minęło %{enrollment_days_limit}, a promotor %{supervisor} nie podjął żadnej czynności.
-  mail_body_enrollment_accepted: Promotor %{supervisor} zaakceptował Twoją prośbę o przypisanie do tematu pracy dyplomowej %{thesis_title}.
+  mail_body_enrollment_accepted: Zostałeś(aś) przypisany do tematu pracy dyplomowej %{thesis_title}, prowadzonej przez promotora %{supervisor}.
   mail_body_thesis_accepted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została zaakceptowana przez %{admin}."
   mail_body_thesis_rejected: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została odrzucona przez %{admin}."
   mail_body_thesis_reverted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została cofnięta z powrotem do puli wyboru dla studentów przez %{admin}. Wszelkie dotychczasowe przypisania studentów do tej pracy zostały usunięte."
