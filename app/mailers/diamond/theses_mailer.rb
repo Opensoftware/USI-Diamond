@@ -34,6 +34,13 @@ class Diamond::ThesesMailer < ActionMailer::Base
       :subject => "#{Settings.app_name} - #{I18n.t(:mail_subject_enrollment_accepted)}")
   end
 
+  def added_thesis(admin_id, thesis_id)
+    @admin = User.where(id: admin_id).first
+    @thesis = Diamond::Thesis.where(id: thesis_id).first
+    mail(:to => @thesis.supervisor.user.email,
+      :subject => "#{Settings.app_name} - #{I18n.t(:mail_subject_thesis_added)}")
+  end
+
   def accept_thesis(admin_id, thesis_id)
     @admin = User.where(id: admin_id).first.try(:verifable)
     @thesis = Diamond::Thesis.where(id: thesis_id).first

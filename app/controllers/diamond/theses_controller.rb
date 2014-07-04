@@ -88,6 +88,11 @@ class Diamond::ThesesController < DiamondController
         if @thesis.save
           accept_enrollments!
           update_status!
+          # Thesis added by department or faculty admin - need to notify
+          # thesis supervisor
+          if can?(:manage_department, Diamond::Thesis)
+            notify_supervisor!
+          end
         end
       else
         supervisor.deny_remaining_theses!
@@ -164,6 +169,11 @@ class Diamond::ThesesController < DiamondController
     if @thesis.update(thesis_params)
       accept_enrollments!
       update_status!
+      # Thesis supervisor has changed - need to notify new supervisor
+      if can?(:manage_department, Diamond::Thesis) &&
+          @thesis.previous_changes.try(:[], :supervisor_id)
+        notify_supervisor!
+      end
       redirect_to thesis_path(@thesis)
     else
       render 'edit'
@@ -294,6 +304,10 @@ class Diamond::ThesesController < DiamondController
           can?(:manage_department, @thesis))
       @thesis.enrollments.each do |enrollment|
         enrollment.accept! if enrollment.can_accept?
+        # Send new notification if thesis has been assigned to another student.
+        if enrollment.previous_changes.try(:[], :student_id)
+          Diamond::ThesesMailer.enrollment_accepted(enrollment.id).deliver
+        end
       end
     end
   end
@@ -308,6 +322,10 @@ class Diamond::ThesesController < DiamondController
         @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
       @thesis.assign!
     end
+  end
+
+  def notify_supervisor!
+    Diamond::ThesesMailer.added_thesis(current_user.id, @thesis.id).deliver
   end
 
   def enrolled?

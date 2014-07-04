@@ -132,7 +132,9 @@ LIMIT 5") }
   end
 
   def accept_enrollments!
-    enrollments.each(&:accept!)
+    enrollments.each do |enrollment|
+      enrollment.accept! if enrollment.can_accept?
+    end
   end
 
   private

@@ -1,0 +1,10 @@
+<p>
+  <%=raw t( :mail_body_thesis_added, admin: mail_to(@admin.email, @admin.verifable.full_name), thesis_title: link_to(@thesis.title, diamond.thesis_url(@thesis) )) %>
+  <% if @thesis.students.present? %>
+    <% if @thesis.students.length == 1 %>
+      <%=raw t(:mail_body_thesis_added_with_student_one, student: mail_to(@thesis.students.first.user.email, @thesis.students.first.surname_name)) %>
+    <% else %>
+      <%=raw t(:mail_body_thesis_added_with_student_other, student: @thesis.students.collect {|s| mail_to(s.user.email, s.surname_name) }.join(", ")) %>
+    <% end %>
+  <% end %>
+</p>
