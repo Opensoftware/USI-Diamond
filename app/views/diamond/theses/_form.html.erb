@@ -95,7 +95,7 @@
         <div class="col-md-4">
           <%= disableable_button_tag course.name, !can_edit?(@thesis), :class => "selectable-btn #{"selectable-btn-hover" if @thesis.assigned_to_course?(course) }", :type => "button" %>
           <% if can_edit?(@thesis) %>
-            <%= hidden_field_tag 'thesis[course_ids][]', course.id, (!@thesis.assigned_to_course?(course) || @thesis.new_record? ? {:disabled => true} : {}) %>
+            <%= hidden_field_tag 'thesis[course_ids][]', course.id, (!@thesis.assigned_to_course?(course)  ? {:disabled => true} : {}) %>
           <% end %>
         </div>
       <% end %>
