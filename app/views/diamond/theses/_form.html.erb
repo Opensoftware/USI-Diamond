@@ -34,7 +34,7 @@
     </div>
     <div class="col-md-8">
       <%= f.label :annual_id, t(:label_annual) %>
-      <%= f.disableable_select :annual_id, !can_edit?(@thesis), options_for_select(annuals.collect {|annual| [annual,annual.id] }, current_annual.id), {}, :class => "form-control" %>
+      <%= f.disableable_select :annual_id, !can_edit?(@thesis), options_for_select(annuals.collect {|annual| [annual,annual.id] }, (@thesis.annual_id || current_annual.id)), {}, :class => "form-control" %>
     </div>
   </div>
 </div>
