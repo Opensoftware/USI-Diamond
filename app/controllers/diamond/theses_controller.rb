@@ -22,6 +22,7 @@ class Diamond::ThesesController < DiamondController
   skip_authorization_check :only => [:index]
 
   def index
+    set_thesis_annual_default!
     @theses = apply_scopes(Diamond::Thesis, params)
     .order("lower(title) ASC")
     if can?(:manage_department, Diamond::Thesis)
@@ -346,6 +347,10 @@ class Diamond::ThesesController < DiamondController
       @courses = @courses.includes(:translations).load.in_groups_of(4, false)
     end
     @thesis_types = Diamond::ThesisType.includes(:translations).load
+  end
+
+  def set_thesis_annual_default!
+    params[:annual_id] ||= Settings.pick_newest.try(:current_annual_id)
   end
 
 end
