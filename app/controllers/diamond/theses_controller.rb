@@ -8,6 +8,7 @@ class Diamond::ThesesController < DiamondController
   has_scope Diamond::Thesis, :by_supervisor, :as => :supervisor_id
   has_scope Diamond::Thesis, :by_course, :as => :course_ids
   has_scope Diamond::Thesis, :by_department, :as => :department_id
+  has_scope Diamond::Thesis, :by_annual, :as => :annual_id
 
   respond_to :html, :js, :json
 
@@ -35,11 +36,11 @@ class Diamond::ThesesController < DiamondController
     if exportable_format?
       @cache_key = fragment_cache_key_for(@theses)
       @theses = @theses.include_peripherals.includes(:department => :translations,
-        :accepted_students => [:studies => [:course => :translations,
-            :study_type => :translations, :study_degree => :translations]])
+                                                     :accepted_students => [:studies => [:course => :translations,
+                                                                                         :study_type => :translations, :study_degree => :translations]])
     else
       @theses = @theses.include_peripherals.paginate(:page => params[:page].to_i < 1 ? 1 : params[:page],
-        :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
+                                                     :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
     end
     respond_with @theses do |f|
       f.js { render :layout => false }
@@ -63,7 +64,7 @@ class Diamond::ThesesController < DiamondController
     thesis_preload
     if @courses.blank? && cannot?(:manage, Diamond::Thesis)
       flash[:error] = t(:error_employee_department_blank,
-        employee: current_user.verifable.surname_name)
+                        employee: current_user.verifable.surname_name)
       redirect_to diamond.theses_path
     end
   end
@@ -105,8 +106,8 @@ class Diamond::ThesesController < DiamondController
         msg = t(:error_thesis_persistence_failed, errors: @thesis.errors.full_messages)
       else
         msg = t(:error_thesis_limit_exceeded,
-          :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
-          :supervisor => @thesis.supervisor.surname_name)
+                :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
+                :supervisor => @thesis.supervisor.surname_name)
       end
     else
       if can?(:manage_department, Diamond::Thesis)
@@ -119,10 +120,10 @@ class Diamond::ThesesController < DiamondController
         with_format(:html) do
           if @thesis.persisted?
             response[:notice] = render_to_string(partial: 'common/flash_notice_template',
-              locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
+                                                 locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
           else
             response[:error] = render_to_string(partial: 'common/flash_error_template',
-              locals: {msg: msg } )
+                                                locals: {msg: msg } )
           end
         end
         render :json => response.to_json
@@ -144,7 +145,7 @@ class Diamond::ThesesController < DiamondController
     @student_studies = StudentStudies.joins(:studies, :student => :theses)
     .includes(:studies => [:course => :translations, :study_type => :translations])
     .where("#{StudentStudies.table_name}.student_id IN (?) AND #{Studies.table_name}.course_id IN (?)",
-      @thesis.student_ids, @thesis.course_ids)
+           @thesis.student_ids, @thesis.course_ids)
     @all_enrollments = @thesis.enrollments.to_a
     if enrolled?
       @enrollments = @thesis.enrollments.accepted
@@ -286,9 +287,9 @@ class Diamond::ThesesController < DiamondController
   private
   def thesis_params
     attrs = [:title_pl, :title_en, :description, :supervisor_id,
-      :thesis_type_id, :student_amount, :annual_id, :department_id,
-      :course_ids => []
-    ]
+             :thesis_type_id, :student_amount, :annual_id, :department_id,
+             :course_ids => []
+             ]
     if can?(:manage_own, Diamond::Thesis) || can?(:manage_department, Diamond::Thesis)
       attrs << {:enrollments_attributes => [:id, :student_id, :enrollment_type_id]}
     end
@@ -301,7 +302,7 @@ class Diamond::ThesesController < DiamondController
 
   def accept_enrollments!
     if @thesis.enrollments.any? && (can?(:manage_own, @thesis) ||
-          can?(:manage_department, @thesis))
+                                    can?(:manage_department, @thesis))
       @thesis.enrollments.each do |enrollment|
         enrollment.accept! if enrollment.can_accept?
         # Send new notification if thesis has been assigned to another student.
