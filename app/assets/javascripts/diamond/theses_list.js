@@ -2,10 +2,6 @@
 
 $(document).ready(function() {
 
-  $(".link-export").click(function() {
-    $(this).attr("href", $.clear_query_params($(this).attr("href"))+window.location.search);
-  });
-
   $("button.select-all").click(function() {
     $("button.button-checkbox", "div.theses-list").trigger("checkbox-change-state");
   });
