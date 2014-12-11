@@ -61,14 +61,14 @@ class Diamond::Reports::ThesesController < DiamondController
     authorize! :manage, :theses_reports
     @supervisors = Employee
     .where("department_id IS NOT NULL")
-    .includes(:employee_title)
+    .includes(:employee_title, :department => :translations)
     theses_statistics
   end
 
   def department_theses_statistics
     authorize! :read, :theses_reports
     @supervisors = Employee.where(department_id: current_user.verifable.department_id)
-    .includes(:employee_title)
+    .includes(:employee_title, :department => :translations)
     theses_statistics
   end
 

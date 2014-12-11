@@ -40,7 +40,7 @@ class Diamond::Thesis < ActiveRecord::Base
     on_transition do |from, to, triggering_event, *event_args|
       if User.current.present?
         Diamond::ThesisStateAudit.create(:thesis_id => self.id, :state => to,
-          :employee_id => User.current.try(:verifable_id))
+                                         :employee_id => User.current.try(:verifable_id))
       end
     end
   end
@@ -110,6 +110,15 @@ ORDER BY a.maxcreated DESC
 LIMIT 5") }
   scope :newest, -> { order("created_at DESC") }
   scope :pick_five, -> { limit(5) }
+  scope :theses_by_supervisor_count, -> {
+    select("DISTINCT(#{Diamond::Thesis.table_name}.supervisor_id),
+      #{Diamond::Thesis.table_name}.thesis_type_id,
+      #{Diamond::Thesis.table_name}.annual_id,
+      count(*) as theses_count")
+    .group("#{Diamond::Thesis.table_name}.supervisor_id,
+      #{Diamond::Thesis.table_name}.thesis_type_id,
+      #{Diamond::Thesis.table_name}.annual_id")
+  }
 
   def self.include_peripherals
     includes(:translations, :annual, [:supervisor => :employee_title], [:thesis_type => :translations], [:courses => :translations])
