@@ -102,6 +102,7 @@ pl:
   label_thesis_desc_enter: Podaj opis pracy
   label_thesis_list: Lista prac dyplomowych
   label_thesis_list_move: Przejdź do listy tematów
+  label_thesis_collection_revert_to_open: Przywróć wyłączone prace do obiegu
   label_thesis_browse_yours: Przeglądaj swoje tematy
   label_thesis_browse_field_of_study: Przeglądaj tematy Twojego kierunku
   label_thesis_chosen_yours: Twoje wybory tematów

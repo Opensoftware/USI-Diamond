@@ -220,6 +220,18 @@ class Diamond::ThesesController < DiamondController
     end
   end
 
+  def collection_revert_to_open
+    authorize! :update, Diamond::Thesis
+
+    Diamond::Thesis.denied.each do |thesis|
+      thesis.revert_to_open!
+      thesis.enrollments.destroy_all
+    end
+
+
+    redirect_to main_app.edit_setting_path(current_settings)
+  end
+
   def change_history
     @thesis = Diamond::Thesis.find(params[:id])
     authorize! :read, @thesis

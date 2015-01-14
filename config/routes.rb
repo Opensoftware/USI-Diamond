@@ -7,6 +7,9 @@ Diamond::Engine.routes.draw do
       patch :revert_to_open
       get :change_history
     end
+    collection do
+      patch :collection_revert_to_open
+    end
     resources :thesis_enrollments do
       member do
         get :accept
