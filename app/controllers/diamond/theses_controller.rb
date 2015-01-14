@@ -36,9 +36,10 @@ class Diamond::ThesesController < DiamondController
 
     if exportable_format?
       @cache_key = fragment_cache_key_for(@theses)
-      @theses = @theses.include_peripherals.includes(:department => :translations,
-                                                     :accepted_students => [:studies => [:course => :translations,
-                                                                                         :study_type => :translations, :study_degree => :translations]])
+      @theses = @theses.include_peripherals
+      .includes(:department => :translations,
+                :accepted_students => [:studies => [:course => :translations,
+                                                    :study_type => :translations, :study_degree => :translations]])
     else
       @theses = @theses.include_peripherals.paginate(:page => params[:page].to_i < 1 ? 1 : params[:page],
                                                      :per_page => params[:per_page].to_i < 1 ? 10 : params[:per_page])
@@ -86,7 +87,7 @@ class Diamond::ThesesController < DiamondController
     msg = ""
 
     if supervisor.present?
-      if supervisor.thesis_limit_not_exceeded?
+      if supervisor.thesis_limit_not_exceeded?(current_annual)
         if @thesis.save
           accept_enrollments!
           update_status!
@@ -97,17 +98,17 @@ class Diamond::ThesesController < DiamondController
           end
         end
       else
-        supervisor.deny_remaining_theses!
+        supervisor.deny_remaining_theses!(current_annual)
       end
     end
     unless @thesis.persisted?
       if supervisor.blank?
         msg = t(:error_thesis_supervisor_not_given)
-      elsif supervisor.thesis_limit_not_exceeded?
+      elsif supervisor.thesis_limit_not_exceeded?(current_annual)
         msg = t(:error_thesis_persistence_failed, errors: @thesis.errors.full_messages)
       else
         msg = t(:error_thesis_limit_exceeded,
-                :limit => @thesis.supervisor.department.department_settings.pick_newest.max_theses_count,
+                :limit => @thesis.supervisor.department.settings_for_annual(annual).max_theses_count,
                 :supervisor => @thesis.supervisor.surname_name)
       end
     else

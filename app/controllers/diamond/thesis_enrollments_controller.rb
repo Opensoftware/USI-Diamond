@@ -14,49 +14,37 @@ class Diamond::ThesisEnrollmentsController < DiamondController
       end
     end
 
-    student = Student.where(id: @enrollment.student_id).first
-    if student.present?
-      @enrollment.save
-      if can?(:manage, Diamond::ThesisEnrollment)
-        @enrollment.accept!
-        Diamond::ThesesMailer.enrollment_accepted(@enrollment.id).deliver
-        if @thesis.can_assign? && @thesis.has_required_students? &&
-            (can?(:manage_department, @thesis) ||
-              (@thesis.current_state >= :open && can?(:manage_own, @thesis)))
-          @thesis.assign!
-          (@thesis.enrollments - [@enrollment]).each do |enrollment|
-            enrollment.reject! if enrollment.can_reject?
-          end
-        end
-        flash[:notice] = t(:label_thesis_enrolled_by_employee, :student => student.surname_name)
-      else
-        Diamond::ThesesMailer.new_enrollment(current_user.id, @enrollment.id).deliver
-        flash[:notice] = t(:label_thesis_enrolled_by_student)
-      end
-    else
-      flash[:error] = t(:label_student_not_found)
+    result = ::ThesisEnrollment::Create
+    .call(thesis: @thesis,
+          current_annual: current_annual,
+          current_user: current_user,
+          enrollment: @enrollment)
+
+    if result.success? && can?(:manage, Diamond::ThesisEnrollment)
+      result = ::ThesisEnrollment::AcceptBatch
+      .call(thesis: @thesis,
+            current_annual: current_annual,
+            enrollment: @enrollment,
+            message: result.message)
     end
-    redirect_to thesis_path(params[:thesis_id])
+
+    redirect_to thesis_path(params[:thesis_id]),
+      :flash => { (result.success? ? :notice : :error) => t(result.message, result.args)}
   end
 
   def accept
     @enrollment = Diamond::ThesisEnrollment.find(params[:id])
     authorize! :update, @enrollment
-    if @enrollment.can_accept?
-      @enrollment.accept!
-      Diamond::ThesesMailer.enrollment_accepted(@enrollment.id).deliver
-    end
     thesis = Diamond::Thesis.find(params[:thesis_id])
-    thesis.assign! if thesis.can_assign? && thesis.has_required_students?
-    ((thesis.enrollments - [@enrollment]) | @enrollment.student.thesis_enrollments.to_a).each do |enrollment|
-      if enrollment.can_reject?
-        enrollment.reject!
-        Diamond::ThesesMailer.enrollment_rejected(enrollment.id).deliver
-      end
-    end
-    deny_theses(thesis.supervisor)
+
+    result = ::ThesisEnrollment::AcceptBatch
+    .call(current_annual: current_annual,
+          current_user: current_user,
+          enrollment: @enrollment,
+          thesis: thesis)
+
     redirect_to thesis_path(params[:thesis_id]),
-      flash: {notice: t(:label_thesis_enrolled_by_employee, student: @enrollment.student.try(:surname_name))}
+      :flash => { (result.success? ? :notice : :error) => t(result.message, result.args)}
   end
 
   def reject
@@ -76,8 +64,8 @@ class Diamond::ThesisEnrollmentsController < DiamondController
   end
 
   def deny_theses(supervisor)
-    unless supervisor.thesis_limit_not_exceeded?
-      supervisor.deny_remaining_theses!
+    unless supervisor.thesis_limit_not_exceeded?(current_annual)
+      supervisor.deny_remaining_theses!(current_annual)
     end
   end
 

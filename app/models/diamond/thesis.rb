@@ -35,7 +35,9 @@ class Diamond::Thesis < ActiveRecord::Base
       event :archive, :transitions_to => :archived
       event :revert_to_open, :transitions_to => :open
     end
-    state :denied
+    state :denied do
+      event :revert_to_open, :transitions_to => :open
+    end
     state :archived
     on_transition do |from, to, triggering_event, *event_args|
       if User.current.present?
@@ -87,6 +89,7 @@ class Diamond::Thesis < ActiveRecord::Base
   scope :unaccepted, -> { where(:state => [:unaccepted, :rejected]) }
   scope :assigned, -> { where(:state => [:assigned]) }
   scope :not_assigned, -> { where("state IN (?)", [:unaccepted, :open, :rejected, :denied]) }
+  scope :denied, -> { where(:state => :denied) }
   scope :newest_enrollments, -> { [] }
   scope :supervisor_newest_enrollments, ->(employee) { Diamond::Thesis.find_by_sql("SELECT a.maxcreated, b.*
 FROM (
@@ -144,6 +147,11 @@ LIMIT 5") }
     enrollments.each do |enrollment|
       enrollment.accept! if enrollment.can_accept?
     end
+  end
+
+  def set_annual!(annual)
+    self.annual = annual
+    save!
   end
 
   private

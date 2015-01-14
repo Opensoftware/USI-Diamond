@@ -186,7 +186,7 @@
                 <% elsif current_user.employee? %>
                   <% if current_user.verifable_id != @thesis.supervisor_id %>
                     <%=t :label_thesis_enrollment%>
-                  <% elsif !@thesis.supervisor.thesis_limit_not_exceeded? %>
+                  <% elsif !@thesis.supervisor.thesis_limit_not_exceeded?(current_annual) %>
                     <%=t :label_thesis_enrollment_limit_exceeded, annual: current_annual.name %>
                   <% end %>
                 <% else %>

@@ -88,6 +88,7 @@ pl:
   label_thesis_added: Dodano temat pracy %{title}
   label_thesis_added_count: "%{current}/%{max}: dodano temat pracy %{title}"
   label_thesis_proposed_count: Zgłoszonych
+  label_thesis_new: Nowy temat pracy
   label_thesis_new_plural: Dodaj tematy
   label_thesis_new_singular: Nowy temat pracy
   label_thesis_singular: Temat pracy
@@ -159,6 +160,10 @@ pl:
   mail_body_thesis_reverted: "Zgłoszona przez Ciebie praca dyplomowa %{thesis_title} została cofnięta z powrotem do puli wyboru dla studentów przez %{admin}. Wszelkie dotychczasowe przypisania studentów do tej pracy zostały usunięte."
   mail_body_auto_msg: Wiadomość wygenerowana automatycznie z systemu SZS AGH. Nie odpowiadaj na nią.
 
+  error:
+    error_thesis_limit_exceeded_supervisor: Limit Twoich przypisanych prac (%{limit}) został wyczerpany. Nie możesz przypisywać studentów, ani akceptować zgłoszeń.
+    error_thesis_limit_exceeded_student: Limit przypisanych prac (%{limit}) dla %{supervisor} został wyczerpany. Nie możesz się już zapisać do tego tematu pracy.
+    student_already_enrolled: "Student %{student} został już przypisany do wymaganej liczby prac dyplomowych. Nie możesz go przypisać do tej pracy."
 
   diamond:
     link:

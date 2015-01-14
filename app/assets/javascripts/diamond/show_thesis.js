@@ -13,7 +13,6 @@ $(document).ready(function() {
       confirmation_action: function() {
         var _t = this;
         this.footer.find("button.btn-confirmation").click(function() {
-          $(_t.element).clone().removeClass("action-accept")[0].click();
           var form = $("<form method='get'>");
           form.prop("action", $(e.currentTarget).prop('href'));
           $("body").append(form);
