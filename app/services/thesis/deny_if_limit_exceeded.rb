@@ -8,7 +8,7 @@ class Thesis::DenyIfLimitExceeded
 
     unless supervisor.thesis_limit_not_exceeded?(context.current_annual)
       supervisor.deny_remaining_theses!(context.current_annual)
-byebug
+
       if context.current_user.employee?
         message = "error.error_thesis_limit_exceeded_supervisor"
       else
