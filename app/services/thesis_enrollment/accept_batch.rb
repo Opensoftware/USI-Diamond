@@ -5,6 +5,7 @@ class ThesisEnrollment::AcceptBatch
   organize Thesis::DenyIfLimitExceeded,
     ThesisEnrollment::Accept,
     Thesis::Assign,
-    ThesisEnrollment::RejectRemainingEnrollments
+    ThesisEnrollment::RejectRemainingEnrollments,
+    ThesisEnrollment::RejectStudentEnrollments
 
 end

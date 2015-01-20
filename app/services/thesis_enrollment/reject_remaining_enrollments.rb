@@ -5,7 +5,7 @@ class ThesisEnrollment::RejectRemainingEnrollments
   def call
 
     if context.thesis.assigned?
-      ((context.thesis.enrollments - [context.enrollment]) | context.enrollment.student.thesis_enrollments.to_a)
+      ((context.thesis.enrollments - [context.enrollment]))
       .each do |enrollment|
         if enrollment.can_reject?
           enrollment.reject!
