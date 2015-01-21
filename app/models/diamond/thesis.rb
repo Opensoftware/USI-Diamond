@@ -139,14 +139,12 @@ LIMIT 5") }
     current_state  >= :assigned
   end
 
-  def has_required_students?
-    enrollments.accepted.length >= student_amount
+  def open?
+    current_state  >= :open
   end
 
-  def accept_enrollments!
-    enrollments.each do |enrollment|
-      enrollment.accept! if enrollment.can_accept?
-    end
+  def has_required_students?
+    enrollments.accepted.length >= student_amount
   end
 
   def set_annual!(annual)

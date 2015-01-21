@@ -87,8 +87,8 @@ class Diamond::ThesesController < DiamondController
     .call(thesis: @thesis,
           current_annual: current_annual,
           current_user: current_user,
-          :can_manage_own_thesis? => can?(:manage_own, @thesis),
-          :can_manage_department_thesis? => can?(:manage_department, @thesis))
+          can_manage_own_thesis?: can?(:manage_own, @thesis),
+          can_manage_department_thesis?: can?(:manage_department, @thesis))
 
     respond_to do |f|
       f.json do
@@ -136,16 +136,19 @@ class Diamond::ThesesController < DiamondController
   def update
     @thesis = Diamond::Thesis.includes(:courses).find(params[:id])
     authorize! :update, @thesis
-    if @thesis.update(thesis_params)
-      accept_enrollments!
-      update_status!
-      # Thesis supervisor has changed - need to notify new supervisor
-      if can?(:manage_department, Diamond::Thesis) &&
-          @thesis.previous_changes.try(:[], :supervisor_id)
-        notify_supervisor!
-      end
+
+    result = ::Thesis::UpdateBatch
+    .call(current_user: current_user,
+          current_annual: current_annual,
+          thesis: @thesis,
+          can_manage_own_thesis?: can?(:manage_own, @thesis),
+          can_manage_department_thesis?: can?(:manage_department, @thesis),
+          thesis_params: thesis_params)
+
+    if result.success?
       redirect_to thesis_path(@thesis)
     else
+      thesis_preload
       render 'edit'
     end
   end
@@ -281,35 +284,6 @@ class Diamond::ThesesController < DiamondController
 
   def allowed_action?
     ALLOWED_ACTIONS.include?(params[:perform_action].to_sym)
-  end
-
-  def accept_enrollments!
-    if @thesis.enrollments.any? && (can?(:manage_own, @thesis) ||
-                                    can?(:manage_department, @thesis))
-      @thesis.enrollments.each do |enrollment|
-        enrollment.accept! if enrollment.can_accept?
-        # Send new notification if thesis has been assigned to another student.
-        if enrollment.previous_changes.try(:[], :student_id)
-          Diamond::ThesesMailer.enrollment_accepted(enrollment.id).deliver
-        end
-      end
-    end
-  end
-
-  def update_status!
-    # Some changes were made by thesis supervisor and thesis was in published
-    # state - need to revert its state to unaccepted
-    if can?(:manage_own, @thesis) && @thesis.previous_changes.present? &&
-        @thesis.current_state >= :open
-      @thesis.revert_to_unaccepted! if @thesis.can_revert_to_unaccepted?
-    elsif @thesis.can_assign? && @thesis.has_required_students? &&
-        @thesis.enrollments.present? && @thesis.enrollments.all?(&:accepted?)
-      @thesis.assign!
-    end
-  end
-
-  def notify_supervisor!
-    Diamond::ThesesMailer.added_thesis(current_user.id, @thesis.id).deliver
   end
 
   def enrolled?

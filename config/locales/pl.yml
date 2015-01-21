@@ -165,6 +165,9 @@ pl:
     error_thesis_limit_exceeded_supervisor: Limit Twoich przypisanych prac (%{limit}) został wyczerpany. Nie możesz przypisywać studentów, ani akceptować zgłoszeń.
     error_thesis_limit_exceeded_student: Limit przypisanych prac (%{limit}) dla %{supervisor} został wyczerpany. Nie możesz się już zapisać do tego tematu pracy.
     student_already_enrolled: "Student %{student} został już przypisany do wymaganej liczby prac dyplomowych. Nie możesz go przypisać do tej pracy."
+    thesis_not_updated: "Temat pracy nie został uaktualniony, błędy: %{errors}"
+  notice:
+    thesis_updated: "Temat pracy %{thesis_title} został uaktualniony"
 
   diamond:
     link:

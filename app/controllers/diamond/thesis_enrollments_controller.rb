@@ -24,8 +24,11 @@ class Diamond::ThesisEnrollmentsController < DiamondController
       result = ::ThesisEnrollment::AcceptBatch
       .call(thesis: @thesis,
             current_annual: current_annual,
+            current_user: current_user,
             enrollment: @enrollment,
-            message: result.message)
+            message: result.message,
+            can_manage_own_thesis?: can?(:manage_own, @thesis),
+            can_manage_department_thesis?: can?(:manage_department, @thesis))
     end
 
     redirect_to thesis_path(params[:thesis_id]),
@@ -41,7 +44,9 @@ class Diamond::ThesisEnrollmentsController < DiamondController
     .call(current_annual: current_annual,
           current_user: current_user,
           enrollment: @enrollment,
-          thesis: thesis)
+          thesis: thesis,
+          can_manage_own_thesis?: can?(:manage_own, thesis),
+          can_manage_department_thesis?: can?(:manage_department, thesis))
 
     redirect_to thesis_path(params[:thesis_id]),
       :flash => { (result.success? ? :notice : :error) => t(result.message, result.args)}
