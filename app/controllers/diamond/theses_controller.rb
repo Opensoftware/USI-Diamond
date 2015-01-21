@@ -18,7 +18,8 @@ class Diamond::ThesesController < DiamondController
 
   helper_method :enrolled?
 
-  authorize_resource :except => [:index, :accept, :revert_to_open, :collection_update, :change_history]
+  authorize_resource :except => [:index, :accept, :revert_to_open,
+                                 :collection_update, :change_history, :collection_destroy]
   skip_authorization_check :only => [:index]
 
   def index
@@ -246,12 +247,14 @@ class Diamond::ThesesController < DiamondController
   end
 
   def collection_destroy
+    authorize! :destroy, Diamond::Thesis
     @theses = Diamond::Thesis.where(:id => params[:thesis_ids])
     @action_performed = true
 
     Diamond::Thesis.transaction do
       begin
         @theses.destroy_all
+        @thesis_ids = params[:thesis_ids]
       rescue
         @action_performed = false
         raise ActiveRecord::Rollback

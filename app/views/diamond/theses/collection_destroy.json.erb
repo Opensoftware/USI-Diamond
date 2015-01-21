@@ -1,1 +1,1 @@
-<%= raw( {:success => @action_performed, :objects => params[:thesis_ids].reduce({}) {|sum, id| sum[id] = id; sum } }.to_json) %>
+<%= raw( {:success => @action_performed, :objects => @thesis_ids.reduce({}) {|sum, el| sum[el] = el; sum } }.to_json) %>
