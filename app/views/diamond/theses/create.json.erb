@@ -1,0 +1,4 @@
+  <% ctxt = @result.success? ? 'notice' : 'error' %>
+  <% @response[:message] = render(partial: "common/flash_#{ctxt}_template", :formats => [:html], locals: {msg: t(@result.message, @result.args) } ) %>
+
+<%=raw @response.to_json %>

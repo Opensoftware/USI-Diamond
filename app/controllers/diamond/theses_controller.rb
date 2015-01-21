@@ -72,69 +72,35 @@ class Diamond::ThesesController < DiamondController
   end
 
   def create
-    @thesis = Diamond::Thesis.new thesis_params
-
-    if can?(:manage, Diamond::Thesis) && @thesis.supervisor_id.present?
-      # If current_user is an admin, assign thesis to supervisor department
-      @thesis.department_id = @thesis.supervisor.department_id
-    elsif can?(:manage_department, Diamond::Thesis)
-      # If current_user is a department admin, assign thesis to his department
-      @thesis.department_id = current_user.verifable.department_id
-    end
-
-    supervisor = current_user.verifable
-    supervisor = Employee.where(id: @thesis.supervisor_id).first if can?(:manage_department, Diamond::Thesis)
-    msg = ""
-
-    if supervisor.present?
-      if supervisor.thesis_limit_not_exceeded?(current_annual)
-        if @thesis.save
-          accept_enrollments!
-          update_status!
-          # Thesis added by department or faculty admin - need to notify
-          # thesis supervisor
-          if can?(:manage_department, Diamond::Thesis)
-            notify_supervisor!
-          end
-        end
-      else
-        supervisor.deny_remaining_theses!(current_annual)
+    @thesis = Diamond::Thesis.new(thesis_params).tap do |t|
+      if can?(:manage, Diamond::Thesis) && t.supervisor_id.present?
+        # If current_user is an admin, assign thesis to supervisor department
+        t.department_id = t.supervisor.department_id
+      elsif can?(:manage_department, Diamond::Thesis)
+        # If current_user is a department admin, assign thesis to his department
+        t.department_id = current_user.verifable.department_id
       end
     end
-    unless @thesis.persisted?
-      if supervisor.blank?
-        msg = t(:error_thesis_supervisor_not_given)
-      elsif supervisor.thesis_limit_not_exceeded?(current_annual)
-        msg = t(:error_thesis_persistence_failed, errors: @thesis.errors.full_messages)
-      else
-        msg = t(:error_thesis_limit_exceeded,
-                :limit => @thesis.supervisor.department.settings_for_annual(current_annual).max_theses_count,
-                :supervisor => @thesis.supervisor.surname_name)
-      end
-    else
-      if can?(:manage_department, Diamond::Thesis)
-        @thesis.accept_enrollments!
-      end
-    end
+
+    result = ::Thesis::CreateBatch
+    .call(thesis: @thesis,
+          current_annual: current_annual,
+          current_user: current_user,
+          :can_manage_own_thesis? => can?(:manage_own, @thesis),
+          :can_manage_department_thesis? => can?(:manage_department, @thesis))
+
     respond_to do |f|
       f.json do
-        response = {:success => true, :clear => @thesis.persisted?}
-        with_format(:html) do
-          if @thesis.persisted?
-            response[:notice] = render_to_string(partial: 'common/flash_notice_template',
-                                                 locals: {msg: t(:label_thesis_added, title: @thesis.title) } )
-          else
-            response[:error] = render_to_string(partial: 'common/flash_error_template',
-                                                locals: {msg: msg } )
-          end
-        end
-        render :json => response.to_json
+        @result = result
+        @response = {:success => result.success?, :clear => @thesis.persisted?}
+        render :layout => false
       end
       f.html do
-        if @thesis.persisted?
-          redirect_to thesis_path(@thesis), :flash => {:notice => t(:label_thesis_added, title: @thesis.title)}
+        if result.success?
+          redirect_to thesis_path(result.thesis),
+            :flash => {:notice => t(result.message, result.args)}
         else
-          flash.now[:error] = msg
+          flash.now[:error] = t(result.message, result.args)
           thesis_preload
           render action: :new
         end
@@ -363,7 +329,7 @@ class Diamond::ThesesController < DiamondController
   end
 
   def set_thesis_annual_default!
-    params[:annual_id] ||= Settings.pick_newest.try(:current_annual_id)
+    params[:annual_id] ||= current_annual.try(:id)
   end
 
 end
