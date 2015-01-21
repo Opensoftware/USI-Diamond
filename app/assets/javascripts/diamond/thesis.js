@@ -31,6 +31,7 @@ $(document).ready(function() {
             if (response.success) {
               if (response.clear) {
                 form.find("input:not(:radio):not(:hidden), textarea").val("");
+                form.find("div.enrollments input").val("");
                 form.find("input[type='radio']").prop('checked', false);
                 form.find("button.selectable-btn").each(function() {
                   $(this).next().prop("disabled", true);
