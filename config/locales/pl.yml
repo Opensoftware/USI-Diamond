@@ -162,10 +162,11 @@ pl:
   mail_body_auto_msg: Wiadomość wygenerowana automatycznie z systemu SZS AGH. Nie odpowiadaj na nią.
 
   error:
-    error_thesis_limit_exceeded_supervisor: Limit Twoich przypisanych prac (%{limit}) został wyczerpany. Nie możesz przypisywać studentów, ani akceptować zgłoszeń.
+    error_thesis_limit_exceeded_supervisor: Limit Twoich przypisanych prac (%{limit}) w roczniku %{annual} został wyczerpany. Nie możesz przypisywać studentów, ani akceptować zgłoszeń.
     error_thesis_limit_exceeded_student: Limit przypisanych prac (%{limit}) dla %{supervisor} został wyczerpany. Nie możesz się już zapisać do tego tematu pracy.
     student_already_enrolled: "Student %{student} został już przypisany do wymaganej liczby prac dyplomowych. Nie możesz go przypisać do tej pracy."
     thesis_not_updated: "Temat pracy nie został uaktualniony, błędy: %{errors}"
+    theses_limit_for_annual_not_present: "Limit prac dyplomowych dla wybranego rocznika (%{annual}) nie został jeszcze ustawiony. Skontaktuj się w tym celu z administratorem systemu."
   notice:
     thesis_updated: "Temat pracy %{thesis_title} został uaktualniony"
 

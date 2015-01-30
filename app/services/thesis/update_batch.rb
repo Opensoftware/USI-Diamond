@@ -2,7 +2,8 @@ class Thesis::UpdateBatch
 
   include Interactor::Organizer
 
-  organize Thesis::DenyIfLimitExceeded,
+  organize Thesis::FailIfDepartmentSettingsBlank,
+    Thesis::DenyIfLimitExceeded,
     Thesis::FailIfEnrollmentsNotUnique,
     Thesis::Update,
     Thesis::RevertToUnaccepted,
